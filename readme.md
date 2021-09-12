@@ -2,7 +2,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/HerveZu/asyevent">
-    <h3 align="center">Asyevent</h3>
+    <h1 align="center">Asyevent</h1>
   </a>
 
   <p align="center">
@@ -61,7 +61,7 @@ greatly appreciated.
 <!-- GETTING STARTED -->
 ## GETTING STARTED
 
-##Installation
+## Installation
 ```sh
 pip install asyevent
 ```
