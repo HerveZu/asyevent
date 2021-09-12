@@ -6,7 +6,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name="asyevent",
-    version="0.1.1",
+    version="0.1.2",
     description="An implementation of events and asynchronous callbacks using decorators.",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -18,6 +18,8 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
     packages=["asyevent"],
     include_package_data=True,

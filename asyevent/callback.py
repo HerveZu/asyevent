@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import inspect
 
-from typing import Callable, Union
+from typing import Callable, Union, Tuple
 
 
 class Callback:
@@ -121,7 +121,7 @@ class Callback:
         if self.repeat_times > 1:
             await asyncio.sleep(self.loop_delay)
 
-    def _parse_arguments(self, *args, **kwargs) -> tuple[list, dict]:
+    def _parse_arguments(self, *args, **kwargs) -> Tuple[list, dict]:
         if self.is_classmethod:
             if self.wrapper is None:
                 raise ValueError(

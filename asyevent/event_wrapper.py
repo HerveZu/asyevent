@@ -1,5 +1,7 @@
 from asyevent.callback import Callback
 
+from typing import List
+
 
 class EventWrapperMixin:
     """
@@ -8,7 +10,7 @@ class EventWrapperMixin:
     Mixin class which implements a way to deal with classmethod callbacks.
     """
     def __init__(self):
-        self.callbacks: list[Callback] = []
+        self.callbacks: List[Callback] = []
 
     def init_callbacks(self):
         """

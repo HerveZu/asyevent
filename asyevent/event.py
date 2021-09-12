@@ -6,7 +6,7 @@ import time
 from asyevent.callback import Callback
 from asyevent.exceptions import EventAlreadyExists
 
-from typing import Callable, Union
+from typing import Callable, Union, List, Dict
 
 
 class Event:
@@ -39,8 +39,8 @@ class Event:
         self._after = None
 
         self._loop = asyncio.get_event_loop()
-        self._tasks: list[asyncio.Task] = []
-        self._callbacks: dict[int, list[Callback]] = {}
+        self._tasks: List[asyncio.Task] = []
+        self._callbacks: Dict[int, List[Callback]] = {}
 
     def __iadd__(self, callback: Callback):
         # default priority, use `.add_callback()` to custom it.
@@ -86,14 +86,14 @@ class Event:
         return self._after
 
     @property
-    def callbacks(self) -> list[Callback]:
+    def callbacks(self) -> List[Callback]:
         """
         Sorts callbacks by layer level and return them.
 
-        :return: :class: `list[Callback]`
+        :return: :class: `List[Callback]`
         """
 
-        result: list[Callback] = []
+        result: List[Callback] = []
 
         for _, callbacks in reversed(sorted(self._callbacks.items())):
             result.extend(callbacks)

@@ -29,4 +29,4 @@ from asyevent.command import Command
 
 __author__ = 'Zucchinetti Hervé'
 __status__ = 'In development'
-__version__ = '0.1.1'
+__version__ = '0.1.2'

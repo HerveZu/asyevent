@@ -6,7 +6,7 @@ from asyevent.command import Command
 
 from asyevent.exceptions import CommandNotFound, EventNotFound, CommandAlreadyRegistered, EventAlreadyRegistered
 
-from typing import Callable, Optional, Union
+from typing import Callable, Optional, Union, List
 from copy import copy
 
 
@@ -23,8 +23,8 @@ class EventManager:
         """
         Initialises an event manager.
         """
-        self._events: list[Event] = []
-        self._commands: list[Command] = []
+        self._events: List[Event] = []
+        self._commands: List[Command] = []
 
         self.loop = asyncio.get_event_loop()
 
@@ -34,7 +34,7 @@ class EventManager:
         self.error_handler = self.create_event('<error_handler>', handle_errors=False)
 
     @property
-    def events(self) -> list[Event]:
+    def events(self) -> List[Event]:
         """
         Property that makes registered events immutable from outside.
 
@@ -43,7 +43,7 @@ class EventManager:
         return copy(self._events)
 
     @property
-    def commands(self) -> list[Command]:
+    def commands(self) -> List[Command]:
         """
         Property that makes registered commands immutable from outside.
 
