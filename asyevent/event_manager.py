@@ -1,0 +1,320 @@
+import asyncio
+
+from asyevent.callback import Callback
+from asyevent.event import Event
+from asyevent.command import Command
+
+from asyevent.exceptions import CommandNotFound, EventNotFound, CommandAlreadyRegistered, EventAlreadyRegistered
+
+from typing import Callable, Optional, Union
+from copy import copy
+
+
+class EventManager:
+    """
+    The manager stores events and commands, it
+    provides an error handler for them.
+
+    An event or command cannot be part of multiple event managers, because an event or command
+    need a `event_manager` variable, to be executed directly with the error handler provided.
+
+    """
+    def __init__(self):
+        """
+        Initialises an event manager.
+        """
+        self._events: list[Event] = []
+        self._commands: list[Command] = []
+
+        self.loop = asyncio.get_event_loop()
+
+        # For all events and commands that defines `handle_errors` set to True, their
+        # exceptions are handled in this event.
+        # Passed parameters are : the exception, the event, the callback, args, **kwargs.
+        self.error_handler = self.create_event('<error_handler>', handle_errors=False)
+
+    @property
+    def events(self) -> list[Event]:
+        """
+        Property that makes registered events immutable from outside.
+
+        :return: A copy of registered events.
+        """
+        return copy(self._events)
+
+    @property
+    def commands(self) -> list[Command]:
+        """
+        Property that makes registered commands immutable from outside.
+
+        :return: A copy of registered commands.
+        """
+        return copy(self._commands)
+
+    def as_command(
+            self, name: str = None, handle_errors: bool = True,
+            multiple_callbacks: bool = True, priority: int = 1, **options
+    ) -> Callable[[Callable], Callback]:
+        """
+        A decorator which registers a coroutine as a callback of this command.
+
+        :param priority: When an event is raised, associated callbacks will be invoked by ascending priority order.
+        :param name: The command name. Coroutine's name by default.
+        :param handle_errors: Determines if exceptions are handle into the error handler event.
+        :param multiple_callbacks: Does the command allow multiple callbacks.
+
+        :return: A callback.
+        """
+
+        def decorator(coroutine: Union[Callable, Callback]) -> Callback:
+            command = self.create_command(
+                coroutine=coroutine,
+                name=name,
+                handle_errors=handle_errors,
+                multiple_callbacks=multiple_callbacks,
+                is_classmethod=False,
+                priority=priority,
+                **options
+            )
+
+            return command.initial_callback
+
+        return decorator
+
+    def as_class_command(
+            self, name: str = None, handle_errors: bool = True,
+            multiple_callbacks: bool = True, priority: int = 1, **options
+    ) -> Callable[[Callable], Callback]:
+        """
+        A decorator which registers a classmethod coroutine as a callback of this command.
+
+        :param priority: When an event is raised, associated callbacks will be invoked by ascending priority order.
+        :param name: The command name. Coroutine name by default.
+        :param handle_errors: Determines if exceptions are handle into the error handler event.
+        :param multiple_callbacks: Does the command allow multiple callbacks.
+
+        :return: A callback.
+        """
+
+        def decorator(coroutine: Union[Callable, Callback]) -> Callback:
+            command = self.create_command(
+                coroutine=coroutine,
+                name=name,
+                handle_errors=handle_errors,
+                multiple_callbacks=multiple_callbacks,
+                is_classmethod=True,
+                priority=priority,
+                **options
+            )
+
+            return command.initial_callback
+
+        return decorator
+
+    def create_command(
+            self, coroutine: Union[Callable, Callback], name: str = None, handle_errors: bool = True,
+            multiple_callbacks: bool = True, is_classmethod: bool = False, priority: int = 1, **options
+    ) -> Command:
+        """
+        Registers a coroutine as a `command` event.
+        The purpose of using this instead of `Event.as_callback` is dynamic event names.
+
+        :param multiple_callbacks: Does the command allow multiple callbacks associated to.
+        :param coroutine: Coroutine which will be called when the command event is raised.
+        :param name: The command name. Coroutine name by default.
+        :param handle_errors: Determines if exceptions are handle into the error handler event.
+        :param is_classmethod: Defines if the callback must be invoked with a `self` parameter.
+        :param priority: When an event is raised, associated callbacks will be invoked by ascending priority order.
+        :param options: Callback options
+
+        :return: A command.
+        """
+        command = Command(
+            coroutine=coroutine,
+            event_manager=self,
+            name=name,
+            handle_errors=handle_errors,
+            multiple_callbacks=multiple_callbacks,
+            is_classmethod=is_classmethod,
+            priority=priority,
+            **options
+        )
+        self._commands.append(command)
+
+        return command
+
+    def create_event(self, name: str, handle_errors: bool = True, multiple_callbacks: bool = True) -> Event:
+        """
+        Creates an event associated to the manager.
+
+        :param multiple_callbacks: Does the command allow multiple callbacks associated to.
+        :param name: The event name.
+        :param handle_errors: Determines if exceptions are handle into the error handler event.
+
+        :return: The event.
+        """
+        event = Event(
+            name=name,
+            event_manager=self,
+            handle_errors=handle_errors,
+            multiple_callbacks=multiple_callbacks
+        )
+        self._events.append(event)
+
+        return event
+
+    def get_command(self, name: str, case_sensitive: bool = True) -> Optional[Command]:
+        """
+        Get a command by its name. The command must be associate to this manager.
+
+        :param name: The command name.
+        :param case_sensitive: Is case sensitive.
+
+        :return: A command if found.
+        """
+        return {
+            cmd.command_name.lower() if not case_sensitive else cmd.command_name: cmd for cmd in self._commands
+        }.get(name.lower() if not case_sensitive else name)
+
+    def get_event(self, name: str, case_sensitive: bool = True) -> Optional[Event]:
+        """
+        Get an event by its name. The event must be associate to this manager.
+
+        :param name: The event name.
+        :param case_sensitive: Is case sensitive.
+
+        :return: An event if found.
+        """
+        return {
+            event.event_name.lower() if not case_sensitive else event.event_name: event for event in self._events
+        }.get(name.lower() if not case_sensitive else name)
+
+    def replace_command_name(self, name: str, new_name: str):
+        """
+        Replace a command name.
+
+        :param name: The name of the command to replace.
+        :param new_name: The new name.
+
+        :raise: CommandNotFound: If no command was found.
+        """
+        command = self.get_command(name)
+
+        if not command:
+            raise CommandNotFound(name=name)
+
+        command.command_name = new_name
+
+    def add_event(self, event: Event):
+        """
+        Add an event to this event manager, and remove it from the previous one.
+
+        :param event: The event to add.
+
+        :raise: EventAlreadyRegistered: If the event is already registered.
+        """
+        if event in self._events:
+            raise EventAlreadyRegistered(event=event)
+
+        event.event_manager.remove_event(event)
+        self._events.append(event)
+        event.event_manager = self
+
+    def remove_event(self, event: Event):
+        """
+        Remove an event from this event manager.
+
+        :param event: The event to remove.
+        """
+        self._events.remove(event)
+        event.event_manager = None
+
+    def remove_event_by_name(self, name: str):
+        """
+        Remove an event by its name from this event manager.
+
+        :param name: The name of the event to remove.
+
+        :raise: EventNotFound: If no event was found.
+        """
+        event = self.get_event(name)
+
+        if not event:
+            raise EventNotFound(name=name)
+
+        self.remove_event(event)
+
+    def add_command(self, command: Command):
+        """
+        Add a command to this event manager, and remove it from the previous one.
+
+        :param command: The command to add.
+
+        :raise: CommandAlreadyRegistered: If the command is already registered.
+        """
+        if command in self._commands:
+            raise CommandAlreadyRegistered(command=command)
+
+        command.event_manager.remove_command(command)
+        self._commands.append(command)
+        command.event_manager = self
+
+    def remove_command(self, command: Command):
+        """
+        Remove a command from this event manager.
+
+        :param command: The command to remove.
+        """
+        self._commands.remove(command)
+        command.event_manager = None
+
+    def remove_command_by_name(self, name: str):
+        """
+        Remove a command by its name from this event manager.
+
+        :param name: The name of the command to remove.
+
+        :raise: CommandNotFound: If no command was found.
+        """
+        command = self.get_command(name)
+
+        if not command:
+            raise CommandNotFound(name=name)
+
+        self.remove_command(command)
+
+    async def invoke_command(self, name: str, *args, case_sensitive: bool = True, **kwargs):
+        """
+        Invokes a command by its name.
+
+        :param name: The command name.
+        :param args: The command parameters.
+        :param case_sensitive: Is case sensitive.
+        :param kwargs: The command keyword parameters.
+
+        :raise CommandNotFound: If no command was found.:
+        """
+        command = self.get_command(name, case_sensitive=case_sensitive)
+
+        if not command:
+            raise CommandNotFound(name)
+
+        await command.raise_event(*args, **kwargs)
+
+    async def raise_event(self, name: str, *args, case_sensitive: bool = True, **kwargs):
+        """
+        Raises an event by its name.
+
+        :param name: The event name.
+        :param case_sensitive: Is case sensitive.
+        :param args: The event parameters.
+        :param kwargs: The event keyword parameters.
+
+        :raise EventNotFound: If no event was found.:
+        """
+        event = self.get_event(name, case_sensitive=case_sensitive)
+
+        if not event:
+            raise EventNotFound(name)
+
+        await event.raise_event(*args, **kwargs)
