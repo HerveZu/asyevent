@@ -1,7 +1,7 @@
 """
 An implementation of events and asynchronous callbacks using decorators.
 
-!! Documentation is not currently complete !!
+!! Code documentation is not currently complete !!
 
 
 example :
