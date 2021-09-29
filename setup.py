@@ -6,7 +6,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name="asyevent",
-    version="0.1.2",
+    version="0.1.3",
     description="An implementation of events and asynchronous callbacks using decorators.",
     long_description=README,
     long_description_content_type="text/markdown",
