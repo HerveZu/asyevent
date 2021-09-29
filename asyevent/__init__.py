@@ -1,8 +1,8 @@
 """
 An implementation of events and asynchronous callbacks using decorators.
 
-!! Code documentation is not currently complete !!
-
+Code documentation is not currently complete.
+Any contribution is greatly appreciated.
 
 example :
     import asyncio
@@ -15,8 +15,7 @@ example :
     async def call_on_event(text: str):
         print(text)
 
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(sample_event('Hello, world !'))    # could use `Event`.raise_event() instead.
+    manager.loop.run_until_complete(sample_event('Hello, world !'))    # could use `Event`.raise_event() instead.
 
 """
 
