@@ -60,7 +60,7 @@ class Event:
     def before(self) -> Event:
         """
         Returns an event that is raised before callbacks.
-        The current parameters will be passed into it.
+        The current parameters will be passed to the callback.
         """
         if not self._before:
             self._before = self.event_manager.create_event(
@@ -73,9 +73,9 @@ class Event:
     @property
     def after(self) -> Event:
         """
-        Returns an event that is raised after callbacks.
-        The callbacks execution duration in seconds as
-        well as the current parameters will be passed into it.
+        Returns an event that is raised after the callbacks.
+        Their execution duration in seconds as
+        well as the current parameters, will be passed to the callback.
         """
         if not self._after:
             self._after = self.event_manager.create_event(

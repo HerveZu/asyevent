@@ -47,6 +47,7 @@ class Callback:
         self.is_active: bool = options.get('is_active', True)
 
         # the delay in seconds before the coroutine is called.
+        # it does not impact the event raising process.
         self.start_delay: float = options.get('start_delay', 0)
 
         # Even if an handler is pass in `.invoke()` method,
