@@ -92,11 +92,10 @@ def parse_parameters(f: Callable, *args, **kwargs) -> Tuple[tuple, dict]:
     types_hint: dict[str, Any] = types | get_type_hints(f)
 
     kwargs = {k: _parse_parameter(types_hint.get(k), v) for k, v in kwargs.items()}
-    args = tuple(
-        _parse_parameter(
-            list(types_hint.values())[i],
-            arg
-        ) for i, arg in enumerate(args)
-    )
+
+    delta = max(0, len(args) - len(types_hint.values()))
+    types_hint_final = list(types_hint.values()) + [Any] * delta
+
+    args = tuple(_parse_parameter(types_hint_final[i], arg) for i, arg in enumerate(args))
 
     return args, kwargs
