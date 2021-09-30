@@ -4,6 +4,7 @@ import asyncio
 import inspect
 
 from typing import Callable, Union, Tuple
+from asyevent.tools.parsing import parse
 
 
 class Callback:
@@ -104,9 +105,8 @@ class Callback:
             self.is_running = False
 
     async def _invoke_once(self, *args, _event=None, _handler=None, **kwargs) -> Exception:
-        parameters = self._parse_arguments(*args, **kwargs)
-
         try:
+            parameters = self._parse_arguments(*args, **kwargs)
             await self._coroutine(*parameters[0], **parameters[1])
 
         except Exception as e:
@@ -122,8 +122,10 @@ class Callback:
         if self.repeat_times > 1:
             await asyncio.sleep(self.loop_delay)
 
-    def _parse_arguments(self, *args, **kwargs) -> Tuple[list, dict]:
+    def _parse_arguments(self, *args, **kwargs) -> Tuple[tuple, dict]:
         if self.is_classmethod:
+            args, kwargs = parse(self._coroutine, *args, **kwargs)
+
             if self.wrapper is None:
                 raise ValueError(
                     f'Missing wrapper instance on classmethod callback {self.__name__!r}. Commun causes are : '
@@ -132,7 +134,7 @@ class Callback:
                     f'\n * Overriding this callback method.'
                 )
 
-            args = [self.wrapper] + list(args)
+            args = (self.wrapper,) + tuple(args)
 
         return args, kwargs
 

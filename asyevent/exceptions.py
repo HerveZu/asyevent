@@ -1,16 +1,19 @@
 """
-All specific package's exceptions raised.
+All specific package's exceptions.
+Cannot type hint custom classes due to circular import.
 """
 
+from typing import Any
 
-class EventSystemException(Exception):
+
+class AsyeventException(Exception):
     """
     Base exception.
     """
     pass
 
 
-class EventException(EventSystemException):
+class EventException(AsyeventException):
     """
     Base event exception.
     """
@@ -19,7 +22,7 @@ class EventException(EventSystemException):
         super().__init__(message)
 
 
-class CommandException(EventSystemException):
+class CommandException(AsyeventException):
     """
     Base command exception.
     """
@@ -30,7 +33,7 @@ class CommandException(EventSystemException):
 
 class EventNotFound(EventException):
     """
-    Raise when a unknown event is invoked.
+    Raised when a unknown event is invoked.
     """
     def __init__(self, name: str):
         self.name = name
@@ -39,7 +42,7 @@ class EventNotFound(EventException):
 
 class EventAlreadyExists(EventException):
     """
-    Raise when an event that is already defined by its event_name is created.
+    Raised when an event that is already defined by its event_name is created.
     """
     def __init__(self, event):
         super().__init__(f'Event {event.event_name!r} already exists.', event)
@@ -47,7 +50,7 @@ class EventAlreadyExists(EventException):
 
 class EventAlreadyRegistered(EventException):
     """
-    Raise when an event is add to en event_manager that already contains the event.
+    Raised when an event is add to en event_manager that already contains the event.
     """
     def __init__(self, event):
         super().__init__(f'Event {event.event_name!r} is already registered.', event)
@@ -55,7 +58,7 @@ class EventAlreadyRegistered(EventException):
 
 class CommandNotFound(CommandException):
     """
-    Raise when a unknown command is invoked.
+    Raised when a unknown command is invoked.
     """
     def __init__(self, name: str):
         self.name = name
@@ -64,7 +67,7 @@ class CommandNotFound(CommandException):
 
 class CommandAlreadyExists(CommandException):
     """
-    Raise when an event that is already defined by its event_name is created.
+    Raised when an event that is already defined by its event_name is created.
     """
     def __init__(self, command):
         super().__init__(f'Command {command.command_name!r} already exists.', command)
@@ -72,7 +75,17 @@ class CommandAlreadyExists(CommandException):
 
 class CommandAlreadyRegistered(CommandException):
     """
-    Raise when a command is add to en event_manager that already contains the command.
+    Raised when a command is add to en event_manager that already contains the command.
     """
     def __init__(self, command):
         super().__init__(f'Command {command.command_name!r} is already registered.', command)
+
+
+class ParsingFailed(AsyeventException):
+    """
+    Raised on function parameters parsing failed.
+    """
+    def __init__(self, value: Any, excepted_type: type):
+        self.value = value
+        self.excepted_type = excepted_type
+        super().__init__(f'Parameter {value!r} of type {type(value)} cannot be parsed into {excepted_type}.')
