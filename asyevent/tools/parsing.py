@@ -5,9 +5,7 @@ from inspect import signature
 
 from abc import ABCMeta, abstractmethod
 
-from asyevent.exceptions import ParsingFailed
-from warnings import warn
-
+from asyevent.exceptions import ParsingError, ParsingNotImplemented
 
 # the list of builtins types that can be use for parsing values
 __builtin_parsable__ = (
@@ -30,16 +28,21 @@ class IParsable(metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def __parse__(cls, x: Any) -> IParsable:
+    def __parse__(cls, value: Any) -> IParsable:
         """
         Parsing method.
-        Raise `asyevent.exceptions.ParsingFailed` for parsing errors.
+        Raise `asyevent.exceptions.ParsingError` for parsing errors.
+
+        Type hinting forces a match before parsing.
+        In other case, `ParsingError` is raised.
+
+
         """
         pass
 
 
-def _parse_arg(cls: type, value: Any) -> Any:
-    if cls is not None:
+def _parse_parameter(cls: type, value: Any) -> Any:
+    if cls is not Any:
         if isinstance(value, cls):
             return value
 
@@ -48,22 +51,39 @@ def _parse_arg(cls: type, value: Any) -> Any:
                 return cls(value)
 
             except ValueError:
-                raise ParsingFailed(
+                raise ParsingError(
                     value=value,
                     excepted_type=cls
                 ) from None
 
         elif issubclass(cls, IParsable):
+            params = [p.annotation for p in signature(cls.__parse__).parameters.values()]
+
+            # checks if the values passed matches the parsing method
+            if type(params[0]) is not type(value):
+                raise ParsingError(
+                    value=value,
+                    excepted_type=cls
+                ) from None
+
             return cls.__parse__(value)
 
-        warn(Warning(f'Parameter {value!r} is not of type {cls}, but {cls} is not parsable.'))
+        raise ParsingNotImplemented(
+            value=value,
+            excepted_type=cls
+        ) from None
 
     return value
 
 
-def parse(f: Callable, *args, **kwargs) -> Tuple[tuple, dict]:
+def parse_parameters(f: Callable, *args, **kwargs) -> Tuple[tuple, dict]:
+    """
+    Parse parameters to match with the signature.
+
+    :raise `ParsingError`: If a parameter cannot be parsed while it is type hinted.
+    """
     types = dict(signature(f).parameters)
-    types = {k: None for k in types.keys()}
+    types = {k: Any for k in types.keys()}
 
     if 'self' in types.keys():
         del types['self']
@@ -71,9 +91,9 @@ def parse(f: Callable, *args, **kwargs) -> Tuple[tuple, dict]:
     # merging signatures names and hint types
     types_hint: dict[str, Any] = types | get_type_hints(f)
 
-    kwargs = {k: _parse_arg(types_hint.get(k), v) for k, v in kwargs.items()}
+    kwargs = {k: _parse_parameter(types_hint.get(k), v) for k, v in kwargs.items()}
     args = tuple(
-        _parse_arg(
+        _parse_parameter(
             list(types_hint.values())[i],
             arg
         ) for i, arg in enumerate(args)
