@@ -63,8 +63,18 @@ class Callback:
         # when a exception occur, if it's handled, defines if the loop iterations should continue.
         self.continue_on_error: bool = options.get('continue_on_error', False)
 
-    async def __call__(self, *args, **kwargs):
-        await self.invoke(*args, **kwargs)
+    async def __call__(self, *args, _event=None, _handler=None, **kwargs):
+        """
+        Invokes the coroutine.
+
+        :param _event: If an error is handled, the event will be passed as a parameter.
+        :param _handler: If an error occur, the `_handler` event will be raised.
+        :param args: Coroutine parameters.
+        :param kwargs: Coroutine keyword parameters.
+
+        :raise Exception: If an exception cannot be handle, it will be raised.:
+        """
+        await self.invoke(*args, **kwargs, _event=_event, _handler=_handler)
 
     @property
     def signature(self) -> inspect.Signature:
