@@ -53,7 +53,8 @@ class EventManager:
     def as_command(
             self, name: str = None, handle_errors: bool = True,
             multiple_callbacks: bool = True, priority: int = 1, **options
-    ) -> Callable[[Callable], Callback]:
+
+    ) -> Callable[[Union[Callable, Callback]], Callback]:
         """
         A decorator which registers a coroutine as a callback of this command.
 
@@ -83,7 +84,8 @@ class EventManager:
     def as_class_command(
             self, name: str = None, handle_errors: bool = True,
             multiple_callbacks: bool = True, priority: int = 1, **options
-    ) -> Callable[[Callable], Callback]:
+
+    ) -> Callable[[Union[Callable, Callback]], Callback]:
         """
         A decorator which registers a classmethod coroutine as a callback of this command.
 
@@ -113,6 +115,7 @@ class EventManager:
     def create_command(
             self, coroutine: Union[Callable, Callback], name: str = None, handle_errors: bool = True,
             multiple_callbacks: bool = True, is_classmethod: bool = False, priority: int = 1, **options
+
     ) -> Command:
         """
         Registers a coroutine as a `command` event.

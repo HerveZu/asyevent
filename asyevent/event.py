@@ -91,12 +91,12 @@ class Event:
         """
         Sorts callbacks by layer level desc and return them into a tuple.
 
-        :return: :class: `List[Callback]`
+        :return: A tuple of callbacks.
         """
 
         return tuple(callback for key in reversed(sorted(self._callbacks)) for callback in self._callbacks[key])
 
-    def as_callback(self, priority: int = 1, **options) -> Callable[[Callable], Callback]:
+    def as_callback(self, priority: int = 1, **options) -> Callable[[Union[Callable, Callback]], Callback]:
         """
         A decorator which registers a coroutine as a callback of this event.
         All event's callbacks are invoked when `raise_event` is called.
@@ -114,7 +114,7 @@ class Event:
 
         return decorator
 
-    def as_class_callback(self, priority: int = 1, **options) -> Callable[[Callable], Callback]:
+    def as_class_callback(self, priority: int = 1, **options) -> Callable[[Union[Callable, Callback]], Callback]:
         """
         A decorator which registers a  classmethod coroutine as a callback of this event.
         All event's callbacks are invoked when `raise_event` is called.
@@ -143,7 +143,7 @@ class Event:
         :param priority: When the event is raised, callbacks are invoked in priority ascending order.
         :param options: Callback options.
 
-        :return: The callback created.
+        :return: The created callback.
         """
         callback = Callback(
             coroutine=coroutine,

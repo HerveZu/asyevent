@@ -7,7 +7,7 @@ class EventWrapperMixin:
     """
     !! Implement this class to create callbacks from classmethods !!
 
-    Mixin class which implements a way to deal with classmethod callbacks.
+    Mixin class which implements a way to deal with classmethod coroutines.
     """
     def __init__(self):
         self.callbacks: List[Callback] = []
