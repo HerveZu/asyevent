@@ -63,6 +63,9 @@ class Callback:
         # when a exception occur, if it's handled, defines if the loop iterations should continue.
         self.continue_on_error: bool = options.get('continue_on_error', False)
 
+    async def __call__(self, *args, **kwargs):
+        await self.invoke(*args, **kwargs)
+
     @property
     def signature(self) -> inspect.Signature:
         """
