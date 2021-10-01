@@ -3,10 +3,10 @@ from __future__ import annotations
 import asyncio
 import time
 
+from typing import Callable, Union, List, Dict, Tuple
+
 from asyevent.callback import Callback
 from asyevent.exceptions import EventAlreadyExists
-
-from typing import Callable, Union, List, Dict, Tuple
 
 
 class Event:
@@ -15,6 +15,7 @@ class Event:
 
     Events contain `Callback` objects. They can be raised for invoke all callbacks stored.
     """
+
     def __init__(self, name: str, event_manager, handle_errors: bool = True, multiple_callbacks: bool = True):
         """
         Initialises an event.
@@ -135,7 +136,7 @@ class Event:
             self, coroutine: Union[Callable, Callback], is_classmethod: bool = False, priority: int = 1, **options
     ) -> Callback:
         """
-        Create a callback and add it to this event.
+        Creates a callback and add it to this event.
 
         :param coroutine: The coroutine that will be
         :param is_classmethod: Does the callback need a `self` parameter.
@@ -164,8 +165,7 @@ class Event:
         :param callback: The callback to register.
         :param priority: When the event is raised, callbacks are invoked in priority ascending order.
 
-        :raise ValueError: If there is multiple callbacks and `multiple_callbacks` is `False`.:
-        :raise ValueError: If the callback is already registered.:
+        :raise ValueError: If the callback is already registered or if there are multiple callbacks and `multiple_callbacks` is `False`.:
         """
         if not self.multiple_callbacks and self.callbacks:
             raise ValueError(f'Cannot add multiple callbacks on event {self.event_name!r}.')
