@@ -6,7 +6,7 @@ import time
 from asyevent.callback import Callback
 from asyevent.exceptions import EventAlreadyExists
 
-from typing import Callable, Union, List, Dict
+from typing import Callable, Union, List, Dict, Tuple
 
 
 class Event:
@@ -86,19 +86,14 @@ class Event:
         return self._after
 
     @property
-    def callbacks(self) -> List[Callback]:
+    def callbacks(self) -> Tuple[Callback]:
         """
-        Sorts callbacks by layer level and return them.
+        Sorts callbacks by layer level desc and return them into a tuple.
 
         :return: :class: `List[Callback]`
         """
 
-        result: List[Callback] = []
-
-        for _, callbacks in reversed(sorted(self._callbacks.items())):
-            result.extend(callbacks)
-
-        return result
+        return tuple(callback for key in reversed(sorted(self._callbacks)) for callback in self._callbacks[key])
 
     def as_callback(self, priority: int = 1, **options) -> Callable[[Callable], Callback]:
         """

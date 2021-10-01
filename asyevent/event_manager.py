@@ -6,8 +6,7 @@ from asyevent.command import Command
 
 from asyevent.exceptions import CommandNotFound, EventNotFound, CommandAlreadyRegistered, EventAlreadyRegistered
 
-from typing import Callable, Optional, Union, List
-from copy import copy
+from typing import Callable, Optional, Union, List, Tuple
 
 
 class EventManager:
@@ -34,22 +33,22 @@ class EventManager:
         self.error_handler = self.create_event('<error_handler>', handle_errors=False)
 
     @property
-    def events(self) -> List[Event]:
+    def events(self) -> Tuple[Event]:
         """
-        Property that makes registered events immutable from outside.
+        Returns all registered events.
 
-        :return: A copy of registered events.
+        :return: A tuple of events.
         """
-        return copy(self._events)
+        return tuple(self._events)
 
     @property
-    def commands(self) -> List[Command]:
+    def commands(self) -> Tuple[Command]:
         """
-        Property that makes registered commands immutable from outside.
+        Returns all registered commands.
 
-        :return: A copy of registered commands.
+        :return: A tuple of commands.
         """
-        return copy(self._commands)
+        return tuple(self._commands)
 
     def as_command(
             self, name: str = None, handle_errors: bool = True,
