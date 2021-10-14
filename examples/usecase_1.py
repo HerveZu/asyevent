@@ -149,10 +149,6 @@ async def main():
 if __name__ == '__main__':
     events = EventsWrapper()
 
-    # initializes wrapped callbacks, this is a mandatory step in order to use classmethod callbacks
-    events.init_callbacks()
-    events.server.init_callbacks()
-
     # displays the registered events and commands
     print(f'Registered events : {[e.event_name for e in manager.events]}')
     print(f'Registered commands : {[e.command_name for e in manager.commands]}.')

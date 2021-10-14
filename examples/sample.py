@@ -1,7 +1,6 @@
 import asyncio
-
-# imports needed classes
 from asyevent import EventManager
+
 
 # creates a main event manager
 manager = EventManager()
