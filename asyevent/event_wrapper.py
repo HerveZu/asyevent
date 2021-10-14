@@ -12,13 +12,15 @@ class EventWrapperMixin:
     def __init__(self):
         self.callbacks: List[Callback] = []
 
+        # initialises callbacks
+        self.init_callbacks()
+
     def init_callbacks(self):
         """
-        !! Use this method to make classmethod callbacks work !!
-
         Pass to all contained callbacks a `self instance` parameter.
+        Use this if a callback has been added after the instance initialisation.
 
-        :raise TypeError: If none classmethod callbacks are registered.
+        :raise TypeError: If a registered callback is not a classmethod.
         """
 
         for attr in dir(self):
