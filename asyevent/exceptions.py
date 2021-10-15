@@ -10,6 +10,7 @@ class AsyeventException(Exception):
     """
     Base exception.
     """
+
     pass
 
 
@@ -40,7 +41,7 @@ class EventNotFound(EventException):
 
     def __init__(self, name: str):
         self.name = name
-        super().__init__(f'Event {self.name!r} cannot be found.')
+        super().__init__(f"Event {self.name!r} cannot be found.")
 
 
 class EventAlreadyExists(EventException):
@@ -49,7 +50,7 @@ class EventAlreadyExists(EventException):
     """
 
     def __init__(self, event):
-        super().__init__(f'Event {event.event_name!r} already exists.', event)
+        super().__init__(f"Event {event.event_name!r} already exists.", event)
 
 
 class EventAlreadyRegistered(EventException):
@@ -58,7 +59,7 @@ class EventAlreadyRegistered(EventException):
     """
 
     def __init__(self, event):
-        super().__init__(f'Event {event.event_name!r} is already registered.', event)
+        super().__init__(f"Event {event.event_name!r} is already registered.", event)
 
 
 class CommandNotFound(CommandException):
@@ -68,7 +69,7 @@ class CommandNotFound(CommandException):
 
     def __init__(self, name: str):
         self.name = name
-        super().__init__(f'Command {self.name!r} cannot be found.')
+        super().__init__(f"Command {self.name!r} cannot be found.")
 
 
 class CommandAlreadyExists(CommandException):
@@ -77,7 +78,7 @@ class CommandAlreadyExists(CommandException):
     """
 
     def __init__(self, command):
-        super().__init__(f'Command {command.command_name!r} already exists.', command)
+        super().__init__(f"Command {command.command_name!r} already exists.", command)
 
 
 class CommandAlreadyRegistered(CommandException):
@@ -86,7 +87,9 @@ class CommandAlreadyRegistered(CommandException):
     """
 
     def __init__(self, command):
-        super().__init__(f'Command {command.command_name!r} is already registered.', command)
+        super().__init__(
+            f"Command {command.command_name!r} is already registered.", command
+        )
 
 
 class ParsingError(AsyeventException):
@@ -97,7 +100,9 @@ class ParsingError(AsyeventException):
     def __init__(self, value: Any, excepted_type: type):
         self.value = value
         self.excepted_type = excepted_type
-        super().__init__(f'Parameter {value!r} of type {type(value)} cannot be parsed into {excepted_type}.')
+        super().__init__(
+            f"Parameter {value!r} of type {type(value)} cannot be parsed into {excepted_type}."
+        )
 
 
 class ParsingNotImplemented(AsyeventException):
@@ -107,7 +112,7 @@ class ParsingNotImplemented(AsyeventException):
 
     def __init__(self, value: Any, excepted_type: type):
         self.message = (
-            f'Parameter {value!r} is not of type {excepted_type}, but {excepted_type} is not parsable. '
-            f'\nImplement `IParsable` to make a class parsable.'
+            f"Parameter {value!r} is not of type {excepted_type}, but {excepted_type} is not parsable. "
+            f"\nImplement `IParsable` to make a class parsable."
         )
         super().__init__(self.message)

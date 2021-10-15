@@ -27,6 +27,6 @@ from asyevent.command import Command
 from asyevent.utils.parser import IParsable
 
 
-__author__ = 'Zucchinetti Hervé'
-__status__ = 'In development'
-__version__ = '0.1.3'
+__author__ = "Zucchinetti Hervé"
+__status__ = "In development"
+__version__ = "0.1.3"

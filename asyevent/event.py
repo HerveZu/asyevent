@@ -16,7 +16,14 @@ class Event:
     Events contain `Callback` objects. They can be raised for invoke all callbacks stored.
     """
 
-    def __init__(self, name: str, *, event_manager, handle_errors: bool = True, multiple_callbacks: bool = True):
+    def __init__(
+        self,
+        name: str,
+        *,
+        event_manager,
+        handle_errors: bool = True,
+        multiple_callbacks: bool = True,
+    ):
         """
         Initialises an event.
 
@@ -65,8 +72,7 @@ class Event:
         """
         if not self._before:
             self._before = self.event_manager.create_event(
-                f'<before:{self.event_name}>',
-                handle_errors=self.handle_errors
+                f"<before:{self.event_name}>", handle_errors=self.handle_errors
             )
 
         return self._before
@@ -80,8 +86,7 @@ class Event:
         """
         if not self._after:
             self._after = self.event_manager.create_event(
-                f'<after:{self.event_name}>',
-                handle_errors=self.handle_errors
+                f"<after:{self.event_name}>", handle_errors=self.handle_errors
             )
 
         return self._after
@@ -94,9 +99,15 @@ class Event:
         :return: A tuple of callbacks.
         """
 
-        return tuple(callback for key in reversed(sorted(self._callbacks)) for callback in self._callbacks[key])
+        return tuple(
+            callback
+            for key in reversed(sorted(self._callbacks))
+            for callback in self._callbacks[key]
+        )
 
-    def as_callback(self, priority: int = 1, **options) -> Callable[[Union[Callable, Callback]], Callback]:
+    def as_callback(
+        self, priority: int = 1, **options
+    ) -> Callable[[Union[Callable, Callback]], Callback]:
         """
         A decorator which registers a coroutine as a callback of this event.
         All event's callbacks are invoked when `raise_event` is called.
@@ -106,15 +117,13 @@ class Event:
 
         def decorator(coroutine: Union[Callable, Callback]) -> Callback:
             return self.create_callback(
-                coroutine=coroutine,
-                priority=priority,
-                **options
+                coroutine=coroutine, priority=priority, **options
             )
 
         return decorator
 
     def create_callback(
-            self, coroutine: Union[Callable, Callback], *, priority: int = 1, **options
+        self, coroutine: Union[Callable, Callback], *, priority: int = 1, **options
     ) -> Callback:
         """
         Creates a callback and add it to this event.
@@ -127,10 +136,7 @@ class Event:
         """
         callback = Callback(coroutine=coroutine, **options)
 
-        self.add_callback(
-            callback=callback,
-            priority=priority
-        )
+        self.add_callback(callback=callback, priority=priority)
 
         return callback
 
@@ -144,10 +150,12 @@ class Event:
         :raise ValueError: If the callback is already registered or if there are multiple callbacks and `multiple_callbacks` is `False`.:
         """
         if not self.multiple_callbacks and self.callbacks:
-            raise ValueError(f'Cannot add multiple callbacks on event {self.event_name!r}.')
+            raise ValueError(
+                f"Cannot add multiple callbacks on event {self.event_name!r}."
+            )
 
         if callback in self.callbacks:
-            raise ValueError(f'Callback {callback.__name__!r} is already registered.')
+            raise ValueError(f"Callback {callback.__name__!r} is already registered.")
 
         if self._callbacks.get(priority) is None:
             self._callbacks[priority] = []
@@ -162,10 +170,12 @@ class Event:
 
         :raise ValueError: If the callbacks is not registered in this event.:
         """
-        new = {p: [c_ for c_ in c if c_ != callback] for p, c in self._callbacks.items()}
+        new = {
+            p: [c_ for c_ in c if c_ != callback] for p, c in self._callbacks.items()
+        }
 
         if new == self._callbacks:
-            raise ValueError(f'Callback {callback.__name__!r} is not registered.')
+            raise ValueError(f"Callback {callback.__name__!r} is not registered.")
 
         self._callbacks = new
 
@@ -183,12 +193,18 @@ class Event:
 
         start_time = time.time()
         for callback in self.callbacks:
-            self._tasks.append(self._loop.create_task(callback.invoke(
-                *args,
-                **kwargs,
-                _event=self,
-                _handler=self.event_manager.error_handler if self.handle_errors else None
-            )))
+            self._tasks.append(
+                self._loop.create_task(
+                    callback.invoke(
+                        *args,
+                        **kwargs,
+                        _event=self,
+                        _handler=self.event_manager.error_handler
+                        if self.handle_errors
+                        else None,
+                    )
+                )
+            )
 
         await asyncio.gather(*self._tasks)
 

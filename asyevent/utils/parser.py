@@ -8,16 +8,7 @@ from abc import ABCMeta, abstractmethod
 from asyevent.exceptions import ParsingError, ParsingNotImplemented
 
 # the list of builtins types that can be use for parsing values
-__builtin_parsable__ = (
-    str,
-    int,
-    float,
-    dict,
-    list,
-    tuple,
-    set,
-    frozenset
-)
+__builtin_parsable__ = (str, int, float, dict, list, tuple, set, frozenset)
 
 
 class IParsable(metaclass=ABCMeta):
@@ -49,27 +40,20 @@ def _parse_parameter(cls: type, value: Any) -> Any:
                 return cls(value)
 
             except ValueError:
-                raise ParsingError(
-                    value=value,
-                    excepted_type=cls
-                ) from None
+                raise ParsingError(value=value, excepted_type=cls) from None
 
         elif issubclass(cls, IParsable):
-            params = [p.annotation for p in signature(cls.__parse__).parameters.values()]
+            params = [
+                p.annotation for p in signature(cls.__parse__).parameters.values()
+            ]
 
             # checks if the values passed matches the parsing method
             if type(params[0]) is not type(value):
-                raise ParsingError(
-                    value=value,
-                    excepted_type=cls
-                ) from None
+                raise ParsingError(value=value, excepted_type=cls) from None
 
             return cls.__parse__(value)
 
-        raise ParsingNotImplemented(
-            value=value,
-            excepted_type=cls
-        ) from None
+        raise ParsingNotImplemented(value=value, excepted_type=cls) from None
 
     return value
 
@@ -84,8 +68,8 @@ def parse_parameters(f: Callable, *args, **kwargs) -> Tuple[tuple, dict]:
     types = dict(signature(f).parameters)
     types = {k: Any for k in types.keys()}
 
-    if 'self' in types.keys():
-        del types['self']
+    if "self" in types.keys():
+        del types["self"]
 
     # merging signatures names and hint types
     types_hint: dict[str, Any] = types | get_type_hints(f)
@@ -95,6 +79,8 @@ def parse_parameters(f: Callable, *args, **kwargs) -> Tuple[tuple, dict]:
     delta = max(0, len(args) - len(types_hint.values()))
     types_hint_final = list(types_hint.values()) + [Any] * delta
 
-    args = tuple(_parse_parameter(types_hint_final[i], arg) for i, arg in enumerate(args))
+    args = tuple(
+        _parse_parameter(types_hint_final[i], arg) for i, arg in enumerate(args)
+    )
 
     return args, kwargs

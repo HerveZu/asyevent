@@ -9,6 +9,7 @@ class EventWrapperMixin:
 
     Mixin class which implements a way to deal with classmethod coroutines.
     """
+
     def __init__(self):
         self.callbacks: List[Callback] = []
 
@@ -30,7 +31,7 @@ class EventWrapperMixin:
 
         for callback in self.callbacks:
             if not callback.is_classmethod:
-                raise TypeError('Wrapper\'s callbacks must be as class callbacks.')
+                raise TypeError("Wrapper's callbacks must be as class callbacks.")
 
             callback.wrapper = self
 

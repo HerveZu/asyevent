@@ -15,11 +15,19 @@ class Command(Event):
     Commands are stored separately from events and are created with an initial callback,
     that is making easier an usage of one callback for on event.
     """
-    _COMMAND_EVENT_FORMAT = '<command:{}>'
+
+    _COMMAND_EVENT_FORMAT = "<command:{}>"
 
     def __init__(
-            self, coroutine: Union[Callable, Callback], *, event_manager, name: str = None,
-            handle_errors: bool = True, multiple_callbacks: bool = True, priority: int = 1, **options
+        self,
+        coroutine: Union[Callable, Callback],
+        *,
+        event_manager,
+        name: str = None,
+        handle_errors: bool = True,
+        multiple_callbacks: bool = True,
+        priority: int = 1,
+        **options
     ):
         """
         Initialises a command with an initial coroutine or callback and event parameters.
@@ -43,13 +51,11 @@ class Command(Event):
             name=self._COMMAND_EVENT_FORMAT.format(self.command_name),
             event_manager=event_manager,
             handle_errors=handle_errors,
-            multiple_callbacks=multiple_callbacks
+            multiple_callbacks=multiple_callbacks,
         )
 
         self._initial_callback = self.create_callback(
-            coroutine=coroutine,
-            priority=priority,
-            **options
+            coroutine=coroutine, priority=priority, **options
         )
 
     @property

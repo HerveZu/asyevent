@@ -4,7 +4,12 @@ from asyevent.callback import Callback
 from asyevent.event import Event
 from asyevent.command import Command
 
-from asyevent.exceptions import CommandNotFound, EventNotFound, CommandAlreadyRegistered, EventAlreadyRegistered
+from asyevent.exceptions import (
+    CommandNotFound,
+    EventNotFound,
+    CommandAlreadyRegistered,
+    EventAlreadyRegistered,
+)
 
 from typing import Callable, Optional, Union, List, Tuple
 
@@ -18,6 +23,7 @@ class EventManager:
     need a `event_manager` variable, to be executed directly with the error handler provided.
 
     """
+
     def __init__(self):
         """
         Initialises an event manager.
@@ -30,7 +36,7 @@ class EventManager:
         # For all events and commands that defines `handle_errors` set to True, their
         # exceptions are handled in this event.
         # Passed parameters are : the exception, the event, the callback, args, **kwargs.
-        self.error_handler = self.create_event('<error_handler>', handle_errors=False)
+        self.error_handler = self.create_event("<error_handler>", handle_errors=False)
 
     @property
     def events(self) -> Tuple[Event]:
@@ -51,9 +57,13 @@ class EventManager:
         return tuple(self._commands)
 
     def as_command(
-            self, *, name: str = None, handle_errors: bool = True,
-            multiple_callbacks: bool = True, priority: int = 1, **options
-
+        self,
+        *,
+        name: str = None,
+        handle_errors: bool = True,
+        multiple_callbacks: bool = True,
+        priority: int = 1,
+        **options
     ) -> Callable[[Union[Callable, Callback]], Callback]:
         """
         A decorator which registers a coroutine as a callback of this command.
@@ -81,8 +91,14 @@ class EventManager:
         return decorator
 
     def create_command(
-            self, coroutine: Union[Callable, Callback], *, name: str = None,
-            handle_errors: bool = True, multiple_callbacks: bool = True, priority: int = 1, **options
+        self,
+        coroutine: Union[Callable, Callback],
+        *,
+        name: str = None,
+        handle_errors: bool = True,
+        multiple_callbacks: bool = True,
+        priority: int = 1,
+        **options
     ) -> Command:
         """
         Registers a coroutine as a `command` event.
@@ -110,7 +126,9 @@ class EventManager:
 
         return command
 
-    def create_event(self, name: str, *, handle_errors: bool = True, multiple_callbacks: bool = True) -> Event:
+    def create_event(
+        self, name: str, *, handle_errors: bool = True, multiple_callbacks: bool = True
+    ) -> Event:
         """
         Creates an event associated to the manager.
 
@@ -124,13 +142,15 @@ class EventManager:
             name=name,
             event_manager=self,
             handle_errors=handle_errors,
-            multiple_callbacks=multiple_callbacks
+            multiple_callbacks=multiple_callbacks,
         )
         self._events.append(event)
 
         return event
 
-    def get_command(self, name: str, *, case_sensitive: bool = True) -> Optional[Command]:
+    def get_command(
+        self, name: str, *, case_sensitive: bool = True
+    ) -> Optional[Command]:
         """
         Get a command by its name. The command must be associate to this manager.
 
@@ -140,7 +160,8 @@ class EventManager:
         :return: A command if found.
         """
         return {
-            cmd.command_name.lower() if not case_sensitive else cmd.command_name: cmd for cmd in self._commands
+            cmd.command_name.lower() if not case_sensitive else cmd.command_name: cmd
+            for cmd in self._commands
         }.get(name.lower() if not case_sensitive else name)
 
     def get_event(self, name: str, *, case_sensitive: bool = True) -> Optional[Event]:
@@ -153,7 +174,8 @@ class EventManager:
         :return: An event if found.
         """
         return {
-            event.event_name.lower() if not case_sensitive else event.event_name: event for event in self._events
+            event.event_name.lower() if not case_sensitive else event.event_name: event
+            for event in self._events
         }.get(name.lower() if not case_sensitive else name)
 
     def replace_command_name(self, name: str, *, new_name: str):
@@ -250,7 +272,9 @@ class EventManager:
 
         self.remove_command(command)
 
-    async def invoke_command(self, name: str, *args, case_sensitive: bool = True, **kwargs):
+    async def invoke_command(
+        self, name: str, *args, case_sensitive: bool = True, **kwargs
+    ):
         """
         Invokes a command by its name.
 
@@ -268,7 +292,9 @@ class EventManager:
 
         await command.raise_event(*args, **kwargs)
 
-    async def raise_event(self, name: str, *args, case_sensitive: bool = True, **kwargs):
+    async def raise_event(
+        self, name: str, *args, case_sensitive: bool = True, **kwargs
+    ):
         """
         Raises an event by its name.
 

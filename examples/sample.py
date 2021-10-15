@@ -6,7 +6,7 @@ from asyevent import EventManager
 manager = EventManager()
 
 # creates an event
-sample_event = manager.create_event('sample_event')
+sample_event = manager.create_event("sample_event")
 
 
 # adds `call_on_event` coroutine as sample_event's callback
@@ -21,18 +21,16 @@ async def sample_event_callback(text: str):
 @sample_event.after.as_callback()
 async def after_event(time_took: int, *args):
     # invokes the command `say`
-    await manager.invoke_command('say', f'I\'ve been here for {time_took} seconds')
+    await manager.invoke_command("say", f"I've been here for {time_took} seconds")
 
 
 # adds the `say_stm` coroutine as a callback of the command `say_hello`
-@manager.as_command(name='say')
+@manager.as_command(name="say")
 async def say_stm(name: str):
-    print(f'Hello, {name} !')
+    print(f"Hello, {name} !")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     # raises the event `sample_event`
-    loop.run_until_complete(
-        sample_event('Hello, world !')
-    )
+    loop.run_until_complete(sample_event("Hello, world !"))
