@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import inspect
 
-from typing import Callable, Union, Tuple
+from typing import Callable, Union, Tuple, Optional
 from asyevent.utils.parser import parse_parameters
 
 
@@ -130,13 +130,13 @@ class Callback:
 
     async def _invoke_once(
         self, *args, _event=None, _handler=None, **kwargs
-    ) -> Exception:
+    ) -> Optional[Exception]:
         try:
             parameters = self._parse_arguments(*args, **kwargs)
             await self._coroutine(*parameters[0], **parameters[1])
 
         except Exception as e:
-            if _handler and not self.refuse_handling:
+            if _handler is not None and not self.refuse_handling:
                 asyncio.create_task(
                     _handler.raise_event(e, _event, self, *args, **kwargs)
                 )

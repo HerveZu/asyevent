@@ -34,10 +34,10 @@ class Event:
 
         :raise EventAlreadyExists: If the event name is not unique in the event_manager.
         """
-        self.event_name = name
+        if event_manager.get_event(name, case_sensitive=False):
+            raise EventAlreadyExists(event_manager.get_event(name))
 
-        if event_manager.get_event(self.event_name, case_sensitive=False):
-            raise EventAlreadyExists(event_manager.get_event(self.event_name))
+        self.event_name = name
 
         self.handle_errors = handle_errors
         self.event_manager = event_manager
@@ -73,7 +73,7 @@ class Event:
 
         :param handle_errors: Are the errors handled into the `event_manager` error handler.
         """
-        if not self._before:
+        if self._before is None:
             self._before = self.event_manager.create_event(
                 f"<before:{self.event_name}>", handle_errors=handle_errors
             )
@@ -92,7 +92,7 @@ class Event:
         """
         self.pass_extra_after = pass_extra
 
-        if not self._after:
+        if self._after is None:
             self._after = self.event_manager.create_event(
                 f"<after:{self.event_name}>", handle_errors=handle_errors
             )
