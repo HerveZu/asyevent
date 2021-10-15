@@ -160,7 +160,7 @@ class Callback:
         """
         self.is_active = False
 
-    def loop(self, times: int, delay: float = 0):
+    def loop(self, *, times: int, delay: float = 0):
         """
         Shortcut for loop settings.
 
