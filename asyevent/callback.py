@@ -12,7 +12,7 @@ class Callback:
     Callable objet, wrap the coroutine behavior with options and errors handler.
     """
     def __init__(
-            self, coroutine: Union[Callable, Callback], is_classmethod: bool = False, **options
+            self, coroutine: Union[Callable, Callback], **options
     ):
         """
         Initialises a callback with a coroutine and options.
@@ -22,7 +22,6 @@ class Callback:
         :param options: Options describing how the coroutine behave.
 
         :raise TypeError: If the `coroutine` parameter is not a coroutine.:
-        :raise ValueError: If the callback is a classmethod but miss the `self` parameter.:
         """
         if isinstance(coroutine, Callback):
             # copy old callback's attributes.
@@ -33,13 +32,10 @@ class Callback:
         self._coroutine = coroutine
         self.__name__ = self._coroutine.__name__
 
-        self.is_classmethod = is_classmethod
+        self.is_classmethod = self.signature.parameters.get('self') is not None
 
         if not inspect.iscoroutinefunction(coroutine):
             raise TypeError(f'Callback function {self.__name__!r} must be a _coroutine.')
-
-        if self.is_classmethod and self.signature.parameters.get('self') is None:
-            raise ValueError(f'Instance parameter \'self\' is missing on {self.__name__!r} callback.')
 
         self.is_running = False
         self.wrapper = None

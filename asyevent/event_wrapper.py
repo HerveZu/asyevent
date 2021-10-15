@@ -13,9 +13,9 @@ class EventWrapperMixin:
         self.callbacks: List[Callback] = []
 
         # initialises callbacks
-        self.init_callbacks()
+        self._init_callbacks()
 
-    def init_callbacks(self):
+    def _init_callbacks(self):
         """
         Pass to all contained callbacks a `self instance` parameter.
         Use this if a callback has been added after the instance initialisation.
@@ -24,13 +24,13 @@ class EventWrapperMixin:
         """
 
         for attr in dir(self):
-            if attr != self.init_callbacks.__name__:  # avoid recursive calls
+            if attr != self._init_callbacks.__name__:  # avoid recursive calls
                 if isinstance(getattr(self, attr), Callback):
                     self.callbacks.append(getattr(self, attr))
 
         for callback in self.callbacks:
             if not callback.is_classmethod:
-                raise TypeError('Wrapper\'s callbacks must be declared as class callbacks.')
+                raise TypeError('Wrapper\'s callbacks must be as class callbacks.')
 
             callback.wrapper = self
 

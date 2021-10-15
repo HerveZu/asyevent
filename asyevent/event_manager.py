@@ -51,7 +51,7 @@ class EventManager:
         return tuple(self._commands)
 
     def as_command(
-            self, name: str = None, handle_errors: bool = True,
+            self, *, name: str = None, handle_errors: bool = True,
             multiple_callbacks: bool = True, priority: int = 1, **options
 
     ) -> Callable[[Union[Callable, Callback]], Callback]:
@@ -72,38 +72,6 @@ class EventManager:
                 name=name,
                 handle_errors=handle_errors,
                 multiple_callbacks=multiple_callbacks,
-                is_classmethod=False,
-                priority=priority,
-                **options
-            )
-
-            return command.initial_callback
-
-        return decorator
-
-    def as_class_command(
-            self, name: str = None, handle_errors: bool = True,
-            multiple_callbacks: bool = True, priority: int = 1, **options
-
-    ) -> Callable[[Union[Callable, Callback]], Callback]:
-        """
-        A decorator which registers a classmethod coroutine as a callback of this command.
-
-        :param priority: When an event is raised, associated callbacks will be invoked by ascending priority order.
-        :param name: The command name. Coroutine name by default.
-        :param handle_errors: Determines if exceptions are handle into the error handler event.
-        :param multiple_callbacks: Does the command allow multiple callbacks.
-
-        :return: A callback.
-        """
-
-        def decorator(coroutine: Union[Callable, Callback]) -> Callback:
-            command = self.create_command(
-                coroutine=coroutine,
-                name=name,
-                handle_errors=handle_errors,
-                multiple_callbacks=multiple_callbacks,
-                is_classmethod=True,
                 priority=priority,
                 **options
             )
@@ -113,9 +81,8 @@ class EventManager:
         return decorator
 
     def create_command(
-            self, coroutine: Union[Callable, Callback], name: str = None, handle_errors: bool = True,
-            multiple_callbacks: bool = True, is_classmethod: bool = False, priority: int = 1, **options
-
+            self, coroutine: Union[Callable, Callback], *, name: str = None,
+            handle_errors: bool = True, multiple_callbacks: bool = True, priority: int = 1, **options
     ) -> Command:
         """
         Registers a coroutine as a `command` event.
@@ -125,7 +92,6 @@ class EventManager:
         :param coroutine: Coroutine which will be called when the command event is raised.
         :param name: The command name. Coroutine name by default.
         :param handle_errors: Determines if exceptions are handle into the error handler event.
-        :param is_classmethod: Defines if the callback must be invoked with a `self` parameter.
         :param priority: When an event is raised, associated callbacks will be invoked by ascending priority order.
         :param options: Callback options
 
@@ -137,7 +103,6 @@ class EventManager:
             name=name,
             handle_errors=handle_errors,
             multiple_callbacks=multiple_callbacks,
-            is_classmethod=is_classmethod,
             priority=priority,
             **options
         )
@@ -145,7 +110,7 @@ class EventManager:
 
         return command
 
-    def create_event(self, name: str, handle_errors: bool = True, multiple_callbacks: bool = True) -> Event:
+    def create_event(self, name: str, *, handle_errors: bool = True, multiple_callbacks: bool = True) -> Event:
         """
         Creates an event associated to the manager.
 
@@ -165,7 +130,7 @@ class EventManager:
 
         return event
 
-    def get_command(self, name: str, case_sensitive: bool = True) -> Optional[Command]:
+    def get_command(self, name: str, *, case_sensitive: bool = True) -> Optional[Command]:
         """
         Get a command by its name. The command must be associate to this manager.
 
@@ -178,7 +143,7 @@ class EventManager:
             cmd.command_name.lower() if not case_sensitive else cmd.command_name: cmd for cmd in self._commands
         }.get(name.lower() if not case_sensitive else name)
 
-    def get_event(self, name: str, case_sensitive: bool = True) -> Optional[Event]:
+    def get_event(self, name: str, *, case_sensitive: bool = True) -> Optional[Event]:
         """
         Get an event by its name. The event must be associate to this manager.
 
@@ -191,7 +156,7 @@ class EventManager:
             event.event_name.lower() if not case_sensitive else event.event_name: event for event in self._events
         }.get(name.lower() if not case_sensitive else name)
 
-    def replace_command_name(self, name: str, new_name: str):
+    def replace_command_name(self, name: str, *, new_name: str):
         """
         Replace a command name.
 

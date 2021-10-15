@@ -18,8 +18,8 @@ class Command(Event):
     _COMMAND_EVENT_FORMAT = '<command:{}>'
 
     def __init__(
-            self, coroutine: Union[Callable, Callback], event_manager, name: str = None, handle_errors: bool = True,
-            multiple_callbacks: bool = True, is_classmethod: bool = False, priority: int = 1, **options
+            self, coroutine: Union[Callable, Callback], *, event_manager, name: str = None,
+            handle_errors: bool = True, multiple_callbacks: bool = True, priority: int = 1, **options
     ):
         """
         Initialises a command with an initial coroutine or callback and event parameters.
@@ -29,7 +29,6 @@ class Command(Event):
         :param name: The command name. Must be unique in the event manager.
         :param handle_errors: Do the errors handled into the `event_manager` error handler.
         :param multiple_callbacks: Does the command allow multiple callbacks associated to.
-        :param is_classmethod: Does the coroutine need a `self` parameter.
         :param priority: When the command will be raised, the callbacks are invoked int a priority ascending order.
         :param options: The callback options.
 
@@ -49,7 +48,6 @@ class Command(Event):
 
         self._initial_callback = self.create_callback(
             coroutine=coroutine,
-            is_classmethod=is_classmethod,
             priority=priority,
             **options
         )

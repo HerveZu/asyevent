@@ -16,7 +16,7 @@ class Event:
     Events contain `Callback` objects. They can be raised for invoke all callbacks stored.
     """
 
-    def __init__(self, name: str, event_manager, handle_errors: bool = True, multiple_callbacks: bool = True):
+    def __init__(self, name: str, *, event_manager, handle_errors: bool = True, multiple_callbacks: bool = True):
         """
         Initialises an event.
 
@@ -107,25 +107,6 @@ class Event:
         def decorator(coroutine: Union[Callable, Callback]) -> Callback:
             return self.create_callback(
                 coroutine=coroutine,
-                is_classmethod=False,
-                priority=priority,
-                **options
-            )
-
-        return decorator
-
-    def as_class_callback(self, priority: int = 1, **options) -> Callable[[Union[Callable, Callback]], Callback]:
-        """
-        A decorator which registers a  classmethod coroutine as a callback of this event.
-        All event's callbacks are invoked when `raise_event` is called.
-
-        :return: `Callback` object.
-        """
-
-        def decorator(coroutine: Union[Callable, Callback]) -> Callback:
-            return self.create_callback(
-                coroutine=coroutine,
-                is_classmethod=True,
                 priority=priority,
                 **options
             )
@@ -133,23 +114,18 @@ class Event:
         return decorator
 
     def create_callback(
-            self, coroutine: Union[Callable, Callback], is_classmethod: bool = False, priority: int = 1, **options
+            self, coroutine: Union[Callable, Callback], *, priority: int = 1, **options
     ) -> Callback:
         """
         Creates a callback and add it to this event.
 
-        :param coroutine: The coroutine that will be
-        :param is_classmethod: Does the callback need a `self` parameter.
+        :param coroutine: The coroutine that will be executed
         :param priority: When the event is raised, callbacks are invoked in priority ascending order.
         :param options: Callback options.
 
         :return: The created callback.
         """
-        callback = Callback(
-            coroutine=coroutine,
-            is_classmethod=is_classmethod,
-            **options
-        )
+        callback = Callback(coroutine=coroutine, **options)
 
         self.add_callback(
             callback=callback,
@@ -158,7 +134,7 @@ class Event:
 
         return callback
 
-    def add_callback(self, callback: Callback, priority: int = 1):
+    def add_callback(self, callback: Callback, *, priority: int = 1):
         """
         Registers a callback to this event.
 
