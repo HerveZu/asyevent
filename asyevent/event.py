@@ -64,7 +64,7 @@ class Event:
     async def __call__(self, *args, **kwargs):
         await self.raise_event(*args, **kwargs)
 
-    def before(self, handle_errors: bool = True) -> Event:
+    def before(self, *, handle_errors: bool = True) -> Event:
         """
         Returns an event that is raised before callbacks.
         The current parameters will be passed to the callback.
@@ -76,7 +76,7 @@ class Event:
 
         return self._before
 
-    def after(self, handle_errors: bool = True) -> Event:
+    def after(self, *, handle_errors: bool = True) -> Event:
         """
         Returns an event that is raised after the callbacks.
         Their execution duration in seconds as
@@ -104,7 +104,7 @@ class Event:
         )
 
     def as_callback(
-        self, priority: int = 1, **options
+        self, *, priority: int = 1, **options
     ) -> Callable[[Union[Callable, Callback]], Callback]:
         """
         A decorator which registers a coroutine as a callback of this event.
