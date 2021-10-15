@@ -64,21 +64,19 @@ class Event:
     async def __call__(self, *args, **kwargs):
         await self.raise_event(*args, **kwargs)
 
-    @property
-    def before(self) -> Event:
+    def before(self, handle_errors: bool = True) -> Event:
         """
         Returns an event that is raised before callbacks.
         The current parameters will be passed to the callback.
         """
         if not self._before:
             self._before = self.event_manager.create_event(
-                f"<before:{self.event_name}>", handle_errors=self.handle_errors
+                f"<before:{self.event_name}>", handle_errors=handle_errors
             )
 
         return self._before
 
-    @property
-    def after(self) -> Event:
+    def after(self, handle_errors: bool = True) -> Event:
         """
         Returns an event that is raised after the callbacks.
         Their execution duration in seconds as
@@ -86,7 +84,7 @@ class Event:
         """
         if not self._after:
             self._after = self.event_manager.create_event(
-                f"<after:{self.event_name}>", handle_errors=self.handle_errors
+                f"<after:{self.event_name}>", handle_errors=handle_errors
             )
 
         return self._after
@@ -188,8 +186,8 @@ class Event:
         :param args: Invocation parameters.
         :param kwargs: Invocation keyword parameters.
         """
-        if self._before and self.before.callbacks:
-            await self.before.raise_event(*args, **kwargs)
+        if self._before is not None and self._before.callbacks:
+            await self._before.raise_event(*args, **kwargs)
 
         start_time = time.time()
         for callback in self.callbacks:
@@ -208,8 +206,8 @@ class Event:
 
         await asyncio.gather(*self._tasks)
 
-        if self._after and self.after.callbacks:
-            await self.after.raise_event(time.time() - start_time, *args, **kwargs)
+        if self._after is not None and self._after.callbacks:
+            await self._after.raise_event(time.time() - start_time, *args, **kwargs)
 
     def cancel(self):
         """
