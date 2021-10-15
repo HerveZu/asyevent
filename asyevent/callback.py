@@ -12,13 +12,32 @@ class Callback:
     Callable objet, wrap the coroutine behavior with options and errors handler.
     """
 
-    def __init__(self, coroutine: Union[Callable, Callback], **options):
+    def __init__(
+            self,
+            coroutine: Union[Callable, Callback],
+            *,
+            is_active: bool = True,
+            refuse_handling: bool = False,
+            continue_on_error: bool = False,
+            loop: int = 1,
+            loop_delay: float = 0,
+            start_delay: float = 0,
+    ):
         """
         Initialises a callback with a coroutine and options.
 
         :param coroutine: The coroutine that will be executed on invoke.
-        :param is_classmethod: Does the coroutine need a `self` parameter.
-        :param options: Options describing how the coroutine behave.
+        :param is_active: Is the coroutine active.
+        :param refuse_handling: Even if an handler is pass in `.invoke()` method,
+            exceptions will be raised if it is set to `True`.
+
+        :param continue_on_error: When a exception occur, if it's handled,
+            defines if the loop iterations should continue.
+
+        :param loop: The coroutine will be called `loop` times.
+        :param loop_delay: The delay in seconds between every loop iteration.
+        :param start_delay: The delay in seconds before the coroutine call.
+            It does not impact the event raising process.
 
         :raise TypeError: If the `coroutine` parameter is not a coroutine.:
         """
@@ -41,24 +60,13 @@ class Callback:
         self.is_running = False
         self.wrapper = None
 
-        # is the coroutine active
-        self.is_active: bool = options.get("is_active", True)
+        self.is_active = is_active
+        self.refuse_handling = refuse_handling
+        self.continue_on_error = continue_on_error
 
-        # the delay in seconds before the coroutine is called.
-        # it does not impact the event raising process.
-        self.start_delay: float = options.get("start_delay", 0)
-
-        # even if an handler is pass in `.invoke()` method,
-        # exceptions will be raised if it is set to `True`.
-        self.refuse_handling = options.get("refuse_handling", False)
-
-        # loop settings
-        # the coroutine will be called `repeat_times` times.
-        self.repeat_times: int = options.get("repeat_times", options.get("loop", 1))
-        # the delay in seconds between every loop iteration of given by `repeat_times`.
-        self.loop_delay: float = options.get("loop_delay", 0)
-        # when a exception occur, if it's handled, defines if the loop iterations should continue.
-        self.continue_on_error: bool = options.get("continue_on_error", False)
+        self.loop = loop
+        self.loop_delay = loop_delay
+        self.start_delay = start_delay
 
     async def __call__(self, *args, _event=None, _handler=None, **kwargs):
         """
@@ -110,12 +118,12 @@ class Callback:
                 ):
                     return
 
-            if self.repeat_times <= 0:
+            if self.loop <= 0:
                 while True:
                     await iterate()
 
             else:
-                for _ in range(self.repeat_times):
+                for _ in range(self.loop):
                     await iterate()
 
             self.is_running = False
@@ -139,7 +147,7 @@ class Callback:
             else:
                 raise e
 
-        if self.repeat_times > 1:
+        if self.loop > 1:
             await asyncio.sleep(self.loop_delay)
 
     def _parse_arguments(self, *args, **kwargs) -> Tuple[tuple, dict]:
@@ -178,5 +186,5 @@ class Callback:
         :param times: How many times the _coroutine iterate on invocation.
         :param delay: Delay between _coroutine iterations.
         """
-        self.repeat_times = times
+        self.loop = times
         self.loop_delay = delay
