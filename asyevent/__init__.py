@@ -24,7 +24,7 @@ from asyevent.event_manager import EventManager
 from asyevent.event_wrapper import EventWrapperMixin
 from asyevent.callback import Callback
 from asyevent.command import Command
-from asyevent.utils.parsing import IParsable
+from asyevent.utils.parser import IParsable
 
 
 __author__ = 'Zucchinetti Hervé'

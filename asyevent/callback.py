@@ -4,7 +4,7 @@ import asyncio
 import inspect
 
 from typing import Callable, Union, Tuple
-from asyevent.utils.parsing import parse_parameters
+from asyevent.utils.parser import parse_parameters
 
 
 class Callback:
