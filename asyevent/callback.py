@@ -52,7 +52,7 @@ class Callback:
 
         self.is_classmethod = self.signature.parameters.get("self") is not None
 
-        if not inspect.iscoroutinefunction(callback):
+        if not inspect.iscoroutinefunction(self._coroutine):
             raise TypeError(
                 f"Callback function {self.__name__!r} must be a _coroutine."
             )
