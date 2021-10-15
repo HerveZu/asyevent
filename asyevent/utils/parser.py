@@ -30,13 +30,11 @@ class IParsable(metaclass=ABCMeta):
     @abstractmethod
     def __parse__(cls, value: Any) -> IParsable:
         """
-        Parsing method.
+        Parsing method to override.
         Raise `asyevent.exceptions.ParsingError` for parsing errors.
 
         Type hinting forces a match before parsing.
-        In other case, `ParsingError` is raised.
-
-
+        Otherwise, `ParsingError` is raised.
         """
         pass
 
@@ -81,6 +79,7 @@ def parse_parameters(f: Callable, *args, **kwargs) -> Tuple[tuple, dict]:
     Parse parameters to match with the signature.
 
     :raise `ParsingError`: If a parameter cannot be parsed while it is type hinted.
+    :return:
     """
     types = dict(signature(f).parameters)
     types = {k: Any for k in types.keys()}
