@@ -3,11 +3,11 @@ from asyevent.callback import Callback
 from typing import List
 
 
-class EventWrapperMixin:
+class EventWrapper:
     """
     !! Implement this class to create callbacks from classmethods !!
 
-    Mixin class which implements a way to deal with classmethod coroutines.
+    Implements a way to deal with classmethod coroutines.
     """
 
     def __init__(self):

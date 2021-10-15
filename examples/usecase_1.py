@@ -7,7 +7,7 @@ from typing import Union
 from warnings import warn
 
 # imports needed classes
-from asyevent import Event, EventManager, EventWrapperMixin, Callback, IParsable
+from asyevent import Event, EventManager, EventWrapper, Callback, IParsable
 
 
 # creates an event manager
@@ -39,10 +39,10 @@ class Data(IParsable):
         return cls(value)
 
 
-class Server(EventWrapperMixin):
+class Server(EventWrapper):
     """
     An example server class which is listening for data.
-    It inherits from `EventWrapperMixin` in order to use `self` param.
+    It inherits from `EventWrapper` in order to use `self` param.
     """
 
     def __init__(self, m: EventManager):
@@ -72,10 +72,10 @@ class Server(EventWrapperMixin):
         await self.shutdown.raise_event()
 
 
-class EventsWrapper(EventWrapperMixin):
+class EventsWrapper(EventWrapper):
     """
     A class that wrap event/command callbacks.
-    It inherits from `EventWrapperMixin` in order to use `self` param.
+    It inherits from `EventWrapper` in order to use `self` param.
     """
 
     server = Server(manager)
@@ -83,7 +83,7 @@ class EventsWrapper(EventWrapperMixin):
     # add `on_data_received` coroutine as a callback for the event `on_data_received`.
     # type hinting data with `Data` forces the parsing from the passed parameter to a `Data` type.
     # `Event.before` is an event which is raised before its parent event.
-    @server.data_received.before.as_callback()
+    @server.data_received.before().as_callback()
     async def on_data_received(self, data: Data):
         print(f"Data received : {data!r}.")
 
@@ -112,12 +112,12 @@ class EventsWrapper(EventWrapperMixin):
     # uses `.after` event which refers to an event that is raised,
     # the first argument is the time took by the previous event's callbacks
     # when all if the parent event's callbacks finish
-    @server.data_received.after.as_callback()
+    @server.data_received.after().as_callback()
     async def after_data_received(self, time_took: int, data: Data):
         print(f"Processing {data} took {time_took} seconds")
 
     # before any parent's event (shutdown) is invoked
-    @server.shutdown.before.as_callback()
+    @server.shutdown.before().as_callback()
     async def shutting_down(self):
         print("Shutting down...")
 

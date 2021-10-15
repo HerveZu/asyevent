@@ -21,7 +21,7 @@ example :
 
 from asyevent.event import Event
 from asyevent.event_manager import EventManager
-from asyevent.event_wrapper import EventWrapperMixin
+from asyevent.event_wrapper import EventWrapper
 from asyevent.callback import Callback
 from asyevent.command import Command
 from asyevent.utils.parser import IParsable
