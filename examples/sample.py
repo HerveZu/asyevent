@@ -18,7 +18,7 @@ async def sample_event_callback(text: str):
 
 # uses `.after` event which refers to an event that is raised
 # when the parent event's callbacks are ended (data_lost)
-@sample_event.after().as_callback()
+@sample_event.after(pass_extra=True).as_callback()
 async def after_event(time_took: int, *args):
     # invokes the command `say`
     await manager.invoke_command("say", f"I've been here for {time_took} seconds")

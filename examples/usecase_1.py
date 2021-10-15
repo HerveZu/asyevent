@@ -112,7 +112,7 @@ class EventsWrapper(EventWrapper):
     # uses `.after` event which refers to an event that is raised,
     # the first argument is the time took by the previous event's callbacks
     # when all if the parent event's callbacks finish
-    @server.data_received.after().as_callback()
+    @server.data_received.after(pass_extra=True).as_callback()
     async def after_data_received(self, time_took: int, data: Data):
         print(f"Processing {data} took {time_took} seconds")
 

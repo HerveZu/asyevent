@@ -13,20 +13,20 @@ class Callback:
     """
 
     def __init__(
-            self,
-            coroutine: Union[Callable, Callback],
-            *,
-            is_active: bool = True,
-            refuse_handling: bool = False,
-            continue_on_error: bool = False,
-            loop: int = 1,
-            loop_delay: float = 0,
-            start_delay: float = 0,
+        self,
+        callback: Union[Callable, Callback],
+        *,
+        is_active: bool = True,
+        refuse_handling: bool = False,
+        continue_on_error: bool = False,
+        loop: int = 1,
+        loop_delay: float = 0,
+        start_delay: float = 0,
     ):
         """
         Initialises a callback with a coroutine and options.
 
-        :param coroutine: The coroutine that will be executed on invoke.
+        :param callback: The coroutine that will be executed on invoke.
         :param is_active: Is the coroutine active.
         :param refuse_handling: Even if an handler is pass in `.invoke()` method,
             exceptions will be raised if it is set to `True`.
@@ -41,18 +41,18 @@ class Callback:
 
         :raise TypeError: If the `coroutine` parameter is not a coroutine.:
         """
-        if isinstance(coroutine, Callback):
+        if isinstance(callback, Callback):
             # copy old callback's attributes.
-            self.__dict__ = coroutine.__dict__
+            self.__dict__ = callback.__dict__
 
             return
 
-        self._coroutine = coroutine
+        self._coroutine = callback
         self.__name__ = self._coroutine.__name__
 
         self.is_classmethod = self.signature.parameters.get("self") is not None
 
-        if not inspect.iscoroutinefunction(coroutine):
+        if not inspect.iscoroutinefunction(callback):
             raise TypeError(
                 f"Callback function {self.__name__!r} must be a _coroutine."
             )

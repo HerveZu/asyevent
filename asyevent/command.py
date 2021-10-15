@@ -20,7 +20,7 @@ class Command(Event):
 
     def __init__(
         self,
-        coroutine: Union[Callable, Callback],
+        callback: Union[Callable, Callback],
         *,
         event_manager,
         name: str = None,
@@ -42,7 +42,7 @@ class Command(Event):
 
         :raise CommandAlreadyExists: If the command name is not unique in the event_manager.
         """
-        self.command_name = name or coroutine.__name__
+        self.command_name = name or callback.__name__
 
         if event_manager.get_command(self.command_name, case_sensitive=False):
             raise CommandAlreadyExists(event_manager.get_command(self.command_name))
@@ -55,7 +55,7 @@ class Command(Event):
         )
 
         self._initial_callback = self.create_callback(
-            coroutine=coroutine, priority=priority, **options
+            callback, priority=priority, **options
         )
 
     @property

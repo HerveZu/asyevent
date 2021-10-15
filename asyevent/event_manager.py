@@ -76,9 +76,9 @@ class EventManager:
         :return: A callback.
         """
 
-        def decorator(coroutine: Union[Callable, Callback]) -> Callback:
+        def decorator(callback: Union[Callable, Callback]) -> Callback:
             command = self.create_command(
-                coroutine=coroutine,
+                callback,
                 name=name,
                 handle_errors=handle_errors,
                 multiple_callbacks=multiple_callbacks,
@@ -92,7 +92,7 @@ class EventManager:
 
     def create_command(
         self,
-        coroutine: Union[Callable, Callback],
+        callback: Union[Callable, Callback],
         *,
         name: str = None,
         handle_errors: bool = True,
@@ -105,7 +105,7 @@ class EventManager:
         The purpose of using this instead of `Event.as_callback` is dynamic event names.
 
         :param multiple_callbacks: Does the command allow multiple callbacks associated to.
-        :param coroutine: Coroutine which will be called when the command event is raised.
+        :param callback: Coroutine which will be called when the command event is raised.
         :param name: The command name. Coroutine name by default.
         :param handle_errors: Determines if exceptions are handle into the error handler event.
         :param priority: When an event is raised, associated callbacks will be invoked by ascending priority order.
@@ -114,7 +114,7 @@ class EventManager:
         :return: A command.
         """
         command = Command(
-            coroutine=coroutine,
+            callback,
             event_manager=self,
             name=name,
             handle_errors=handle_errors,

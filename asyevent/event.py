@@ -43,6 +43,8 @@ class Event:
         self.event_manager = event_manager
         self.multiple_callbacks = multiple_callbacks
 
+        self.pass_extra_after = False
+
         self._before = None
         self._after = None
 
@@ -68,6 +70,8 @@ class Event:
         """
         Returns an event that is raised before callbacks.
         The current parameters will be passed to the callback.
+
+        :param handle_errors: Are the errors handled into the `event_manager` error handler.
         """
         if not self._before:
             self._before = self.event_manager.create_event(
@@ -76,12 +80,18 @@ class Event:
 
         return self._before
 
-    def after(self, *, handle_errors: bool = True) -> Event:
+    def after(self, *, handle_errors: bool = True, pass_extra: bool = False) -> Event:
         """
         Returns an event that is raised after the callbacks.
         Their execution duration in seconds as
         well as the current parameters, will be passed to the callback.
+
+        :param handle_errors: Are the errors handled into the `event_manager` error handler.
+        :param pass_extra: Pass the callbacks execution time if it is set to `True`.
+
         """
+        self.pass_extra_after = pass_extra
+
         if not self._after:
             self._after = self.event_manager.create_event(
                 f"<after:{self.event_name}>", handle_errors=handle_errors
@@ -113,28 +123,26 @@ class Event:
         :return: `Callback` object.
         """
 
-        def decorator(coroutine: Union[Callable, Callback]) -> Callback:
-            return self.create_callback(
-                coroutine=coroutine, priority=priority, **options
-            )
+        def decorator(callback: Union[Callable, Callback]) -> Callback:
+            return self.create_callback(callback, priority=priority, **options)
 
         return decorator
 
     def create_callback(
-        self, coroutine: Union[Callable, Callback], *, priority: int = 1, **options
+        self, callback: Union[Callable, Callback], *, priority: int = 1, **options
     ) -> Callback:
         """
         Creates a callback and add it to this event.
 
-        :param coroutine: The coroutine that will be executed
+        :param callback: The coroutine that will be executed
         :param priority: When the event is raised, callbacks are invoked in priority ascending order.
         :param options: Callback options.
 
         :return: The created callback.
         """
-        callback = Callback(coroutine=coroutine, **options)
+        callback = Callback(callback, **options)
 
-        self.add_callback(callback=callback, priority=priority)
+        self.add_callback(callback, priority=priority)
 
         return callback
 
@@ -207,7 +215,11 @@ class Event:
         await asyncio.gather(*self._tasks)
 
         if self._after is not None and self._after.callbacks:
-            await self._after.raise_event(time.time() - start_time, *args, **kwargs)
+            # pass extra parameter only if specified
+            if self.pass_extra_after:
+                args = (time.time() - start_time, *args)
+
+            await self._after.raise_event(*args, **kwargs)
 
     def cancel(self):
         """
