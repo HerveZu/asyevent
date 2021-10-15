@@ -24,14 +24,15 @@ async def after_event(time_took: int, *args):
     await manager.invoke_command('say', f'I\'ve been here for {time_took} seconds')
 
 
-# adds the `hello` coroutine as a callback of the command `say_hello`
+# adds the `say_stm` coroutine as a callback of the command `say_hello`
 @manager.as_command(name='say')
 async def say_stm(name: str):
     print(f'Hello, {name} !')
 
 
 if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
     # raises the event `sample_event`
-    manager.loop.run_until_complete(
+    loop.run_until_complete(
         sample_event('Hello, world !')
     )
