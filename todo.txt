@@ -1,10 +1,8 @@
-automatic detection if is classmethod or not in Callback constructor.
 specification if only the matched signatures callbacks should be raised.
-add et remove callbacks with EventWrapperMixin methods.
+add et remove callbacks with EventWrapper methods.
 kwargs for specification for automatic passed parameters.
 typing 3.10 (with from __future__ import annotations for code compatibility)
-rename coroutine param to callable
-rename coroutine param, decorator / wrapper
-add functools.wraps() to decorators
 private and protected convention names
-use is not None instead of not
+use "is not None" instead of "not"
+personal error handler for every event and callback
+reformatting using Black
