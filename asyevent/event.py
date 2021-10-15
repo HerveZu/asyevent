@@ -29,7 +29,7 @@ class Event:
 
         :param name: The event name. Must be unique in the event manager.
         :param event_manager: An event manager.
-        :param handle_errors: Do the errors handled into the `event_manager` error handler.
+        :param handle_errors: Are the errors handled into the `event_manager` error handler.
         :param multiple_callbacks: Does the command allow multiple callbacks associated to.
 
         :raise EventAlreadyExists: If the event name is not unique in the event_manager.
