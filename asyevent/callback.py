@@ -22,7 +22,7 @@ class Callback:
         loop: int = 1,
         loop_delay: float = 0,
         start_delay: float = 0,
-        checker: Callable[[tuple, dict], bool] = None
+        checker: Callable[[tuple, dict], bool] = None,
     ):
         """
         Initialises a callback with a coroutine and options.
