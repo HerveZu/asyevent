@@ -98,7 +98,7 @@ async def after_event(time_took: int, *args):
     await manager.invoke_command("say", f"I've been here for {time_took} seconds")
 
 
-# adds the `say_stm` coroutine as a callback of the command `say_hello`
+# adds the `say_stm` coroutine as a callback of the command `say`
 @manager.as_command(name="say")
 async def say_stm(name: str):
     print(f"Hello, {name} !")
