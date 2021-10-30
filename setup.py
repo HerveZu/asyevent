@@ -21,7 +21,11 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
     ],
-    packages=["asyevent"],
+    packages=[
+        "asyevent",
+        "asyevent/examples",
+        "asyevent/utils"
+    ],
     include_package_data=True,
     install_requires=["asyncio"],
 )
