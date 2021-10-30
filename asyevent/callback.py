@@ -9,7 +9,7 @@ from asyevent.utils.parser import parse_parameters
 
 class Callback:
     """
-    Callable objet, wrap the coroutine behavior with options and errors handler.
+    Callable objet, wraps the coroutine behavior with options and errors handler.
     """
 
     def __init__(
@@ -22,6 +22,7 @@ class Callback:
         loop: int = 1,
         loop_delay: float = 0,
         start_delay: float = 0,
+        checker: Callable[[tuple, dict], bool] = None
     ):
         """
         Initialises a callback with a coroutine and options.
@@ -35,9 +36,13 @@ class Callback:
             defines if the loop iterations should continue.
 
         :param loop: The coroutine will be called `loop` times.
-        :param loop_delay: The delay in seconds between every loop iteration.
+        :param loop_delay: The delay in seconds between each loop iteration.
         :param start_delay: The delay in seconds before the coroutine call.
             It does not impact the event raising process.
+
+        :param checker: A lambda that takes as parameters the callbacks ones and returns a boolean.
+            If it returns `False`, the call is aborted.
+            `checker` is called at each iteration. If an error occurred, it is handled from the error handler.
 
         :raise TypeError: If the `coroutine` parameter is not a coroutine.:
         """
@@ -67,6 +72,8 @@ class Callback:
         self.loop = loop
         self.loop_delay = loop_delay
         self.start_delay = start_delay
+
+        self.checker = checker
 
     async def __call__(self, *args, _event=None, _handler=None, **kwargs):
         """
@@ -133,7 +140,9 @@ class Callback:
     ) -> Optional[Exception]:
         try:
             parameters = self._parse_arguments(*args, **kwargs)
-            await self._coroutine(*parameters[0], **parameters[1])
+
+            if self.checker is None or self.checker(*parameters[0], **parameters[1]):
+                await self._coroutine(*parameters[0], **parameters[1])
 
         except Exception as e:
             if _handler is not None and not self.refuse_handling:
