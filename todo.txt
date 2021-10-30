@@ -1,8 +1,6 @@
 specification if only the matched signatures callbacks should be raised.
 add et remove callbacks with EventWrapper methods.
-kwargs for specification for automatic passed parameters.
-typing 3.10 (with from __future__ import annotations for code compatibility)
-private and protected convention names
+kwargs for specification if automatic parameters are passed.
 use "is not None" instead of "not"
 personal error handler for every event and callback
 reformatting using Black
