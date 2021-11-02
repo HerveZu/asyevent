@@ -7,7 +7,7 @@ from typing import Union
 from warnings import warn
 
 # imports needed classes
-from asyevent import Event, EventManager, EventWrapper, Callback, IParsable
+from asyevent import Event, EventManager, EventWrapper, Callback
 
 
 # creates an event manager
@@ -17,7 +17,7 @@ manager = EventManager()
 start_event = manager.create_event("starting")
 
 
-class Data(IParsable):
+class Data:
     """
     Creating our own parsing type by implementing IParable.
     """

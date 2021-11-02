@@ -1,25 +1,25 @@
 from __future__ import annotations
 
-from typing import Any, Tuple, get_type_hints, Callable
+from typing import Any, Tuple, Callable, Protocol, get_type_hints, runtime_checkable
 from inspect import signature
 
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 
 from asyevent.exceptions import ParsingError, ParsingNotImplemented
 
 # the list of builtins types that can be use for parsing values
-__builtin_parsable__ = (str, int, float, dict, list, tuple, set, frozenset)
+__builtin_parsable__ = {str, int, float, dict, list, tuple, set, frozenset}
 
 
-class IParsable(metaclass=ABCMeta):
+@runtime_checkable
+class _IParsable(Protocol):
     """
-    Implement this interface allows the class, by overriding `__parse__()`,
-    to provide a parser method used when passing parameters to callbacks.
+    Parser protocol that provides a parser method call when passing parameters to callbacks.
     """
 
     @classmethod
     @abstractmethod
-    def __parse__(cls, value: Any) -> IParsable:
+    def __parse__(cls, value: Any) -> _IParsable:
         """
         Parsing method to override.
         Raise `asyevent.exceptions.ParsingError` for parsing errors.
@@ -42,7 +42,7 @@ def _parse_parameter(cls: type, value: Any) -> Any:
             except ValueError:
                 raise ParsingError(value=value, excepted_type=cls) from None
 
-        elif issubclass(cls, IParsable):
+        elif issubclass(cls, _IParsable):
             params = [
                 p.annotation for p in signature(cls.__parse__).parameters.values()
             ]
