@@ -4,3 +4,5 @@ kwargs for specification if automatic parameters are passed.
 use "is not None" instead of "not"
 personal error handler for every event and callback
 reformatting using Black
+yield from event
+pass AbstractLoopEvent to event manager
