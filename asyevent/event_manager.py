@@ -18,10 +18,6 @@ class EventManager:
     """
     The manager stores events and commands, it
     provides an error handler for them.
-
-    An event or command cannot be part of multiple event managers, because an event or command
-    need a `event_manager` variable, to be executed directly with the error handler provided.
-
     """
 
     def __init__(self):
