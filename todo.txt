@@ -7,3 +7,4 @@ reformatting using Black
 yield from event
 pass AbstractLoopEvent to event manager
 import typing instead of ... from typing
+await for event to be triggerred (asyncio.Event.wait)
