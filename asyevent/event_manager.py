@@ -29,7 +29,7 @@ class EventManager:
 
         self.loop = asyncio.get_event_loop()
 
-        # For all events and commands that defines `handle_errors` set to True, their
+        # For all events and commands that define `handle_errors` to True, their
         # exceptions are handled in this event.
         # Passed parameters are : the exception, the event, the callback, args, **kwargs.
         self.error_handler = self.create_event("<error_handler>", handle_errors=False)
