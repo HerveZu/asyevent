@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import time
-
-from typing import Callable, Union, List, Dict, Tuple
+import typing
 
 from asyevent.callback import Callback
 from asyevent.exceptions import EventAlreadyExists
@@ -49,8 +48,10 @@ class Event:
         self._after = None
 
         self._loop = asyncio.get_event_loop()
-        self._tasks: List[asyncio.Task] = []
-        self._callbacks: Dict[int, List[Callback]] = {}
+        self._tasks: typing.List[asyncio.Task] = []
+        self._callbacks: typing.Dict[int, typing.List[Callback]] = {}
+
+        self._internal_event = asyncio.Event()
 
     def __iadd__(self, callback: Callback):
         # default priority, use `.add_callback()` to custom it.
@@ -62,6 +63,9 @@ class Event:
         self.remove_callback(callback)
 
         return self
+
+    def __await__(self) -> typing.Generator[typing.Any, None, typing.Any]:
+        return self._internal_event.wait().__await__()
 
     async def __call__(self, *args, **kwargs):
         await self.raise_event(*args, **kwargs)
@@ -100,7 +104,7 @@ class Event:
         return self._after
 
     @property
-    def callbacks(self) -> Tuple[Callback]:
+    def callbacks(self) -> typing.Tuple[Callback]:
         """
         Sorts callbacks by layer level desc and return them into a tuple.
 
@@ -115,7 +119,7 @@ class Event:
 
     def as_callback(
         self, *, priority: int = 1, **options
-    ) -> Callable[[Union[Callable, Callback]], Callback]:
+    ) -> typing.Callable[[typing.Union[typing.Callable, Callback]], Callback]:
         """
         A decorator which registers a coroutine as a callback of this event.
         All event's callbacks are invoked when `raise_event` is called.
@@ -123,13 +127,13 @@ class Event:
         :return: `Callback` object.
         """
 
-        def decorator(callback: Union[Callable, Callback]) -> Callback:
+        def decorator(callback: typing.Union[typing.Callable, Callback]) -> Callback:
             return self.create_callback(callback, priority=priority, **options)
 
         return decorator
 
     def create_callback(
-        self, callback: Union[Callable, Callback], *, priority: int = 1, **options
+        self, callback: typing.Union[typing.Callable, Callback], *, priority: int = 1, **options
     ) -> Callback:
         """
         Creates a callback and add it to this event.
@@ -197,7 +201,9 @@ class Event:
         if self._before is not None and self._before.callbacks:
             await self._before.raise_event(*args, **kwargs)
 
+        self._internal_event.set()
         start_time = time.time()
+
         for callback in self.callbacks:
             self._tasks.append(
                 self._loop.create_task(
