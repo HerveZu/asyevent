@@ -31,31 +31,28 @@ class _IParsable(Protocol):
 
 
 def _parse_parameter(cls: type, value: Any) -> Any:
-    if cls is not Any:
-        if isinstance(value, cls):
-            return value
+    if cls is Any or cls is None or isinstance(value, cls):
+        return value
 
-        if cls in __builtin_parsable__:
-            try:
-                return cls(value)
+    if cls in __builtin_parsable__:
+        try:
+            return cls(value)
 
-            except ValueError:
-                raise ParsingError(value=value, excepted_type=cls) from None
+        except ValueError:
+            raise ParsingError(value=value, excepted_type=cls) from None
 
-        elif issubclass(cls, _IParsable):
-            params = [
-                p.annotation for p in signature(cls.__parse__).parameters.values()
-            ]
+    elif issubclass(cls, _IParsable):
+        params = [
+            p.annotation for p in signature(cls.__parse__).parameters.values()
+        ]
 
-            # checks if the values passed matches the parsing method
-            if type(params[0]) is not type(value):
-                raise ParsingError(value=value, excepted_type=cls) from None
+        # checks if the values passed matches the parsing method
+        if type(params[0]) is not type(value):
+            raise ParsingError(value=value, excepted_type=cls) from None
 
-            return cls.__parse__(value)
+        return cls.__parse__(value)
 
-        raise ParsingNotImplemented(value=value, excepted_type=cls) from None
-
-    return value
+    raise ParsingNotImplemented(value=value, excepted_type=cls) from None
 
 
 def parse_parameters(f: Callable, *args, **kwargs) -> Tuple[tuple, dict]:
@@ -65,22 +62,19 @@ def parse_parameters(f: Callable, *args, **kwargs) -> Tuple[tuple, dict]:
     :raise `ParsingError`: If a parameter cannot be parsed while it is type hinted.
     :return:
     """
-    types = dict(signature(f).parameters)
-    types = {k: Any for k in types.keys()}
-
-    if "self" in types.keys():
-        del types["self"]
+    types = {k: Any for k in dict(signature(f).parameters).keys()}
+    types.pop("self", None)
 
     # merging signatures names and hint types
-    types_hint: dict[str, Any] = types | get_type_hints(f)
+    hints: dict[str, Any] = types | get_type_hints(f)
 
-    kwargs = {k: _parse_parameter(types_hint.get(k), v) for k, v in kwargs.items()}
+    kwargs = {k: _parse_parameter(hints.get(k), v) for k, v in kwargs.items()}
 
-    delta = max(0, len(args) - len(types_hint.values()))
-    types_hint_final = list(types_hint.values()) + [Any] * delta
+    delta = max(0, len(args) - len(hints.values()))
+    final_hints = list(hints.values()) + [Any] * delta
 
     args = tuple(
-        _parse_parameter(types_hint_final[i], arg) for i, arg in enumerate(args)
+        _parse_parameter(final_hints[i], arg) for i, arg in enumerate(args)
     )
 
     return args, kwargs
