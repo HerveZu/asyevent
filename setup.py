@@ -4,9 +4,11 @@ from setuptools import setup
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
 
+version = "0.2.4"
+
 setup(
     name="asyevent",
-    version="0.2.3",
+    version=version,
     description="An implementation of events and asynchronous callbacks using decorators.",
     long_description=README,
     long_description_content_type="text/markdown",

@@ -25,7 +25,9 @@ from asyevent.event_wrapper import EventWrapper
 from asyevent.callback import Callback
 from asyevent.command import Command
 
+from setup import version
+
 
 __author__ = "Zucchinetti Hervé"
 __status__ = "In development"
-__version__ = "0.2.3"
+__version__ = version
