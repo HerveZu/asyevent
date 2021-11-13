@@ -42,9 +42,7 @@ def _parse_parameter(cls: type, value: Any) -> Any:
             raise ParsingError(value=value, excepted_type=cls) from None
 
     elif issubclass(cls, _IParsable):
-        params = [
-            p.annotation for p in signature(cls.__parse__).parameters.values()
-        ]
+        params = [p.annotation for p in signature(cls.__parse__).parameters.values()]
 
         # checks if the values passed matches the parsing method
         if type(params[0]) is not type(value):
@@ -73,8 +71,6 @@ def parse_parameters(f: Callable, *args, **kwargs) -> Tuple[tuple, dict]:
     delta = max(0, len(args) - len(hints.values()))
     final_hints = list(hints.values()) + [Any] * delta
 
-    args = tuple(
-        _parse_parameter(final_hints[i], arg) for i, arg in enumerate(args)
-    )
+    args = tuple(_parse_parameter(final_hints[i], arg) for i, arg in enumerate(args))
 
     return args, kwargs
