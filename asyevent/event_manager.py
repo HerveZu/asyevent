@@ -155,10 +155,14 @@ class EventManager:
 
         :return: A command if found.
         """
-        return {
-            cmd.command_name.lower() if not case_sensitive else cmd.command_name: cmd
-            for cmd in self._commands
-        }.get(name.lower() if not case_sensitive else name)
+
+        def checker(cmd: Command) -> bool:
+            if case_sensitive:
+                return cmd.command_name == name
+
+            return cmd.command_name.casefold() == name.casefold()
+
+        return next(filter(checker, self._commands), None)
 
     def get_event(self, name: str, *, case_sensitive: bool = True) -> Optional[Event]:
         """
@@ -169,10 +173,14 @@ class EventManager:
 
         :return: An event if found.
         """
-        return {
-            event.event_name.lower() if not case_sensitive else event.event_name: event
-            for event in self._events
-        }.get(name.lower() if not case_sensitive else name)
+
+        def checker(event: Event) -> bool:
+            if case_sensitive:
+                return event.event_name == name
+
+            return event.event_name.casefold() == name.casefold()
+
+        return next(filter(checker, self._events), None)
 
     def replace_command_name(self, name: str, *, new_name: str):
         """
@@ -185,7 +193,7 @@ class EventManager:
         """
         command = self.get_command(name)
 
-        if not command:
+        if command is None:
             raise CommandNotFound(name=name)
 
         command.command_name = new_name
@@ -224,7 +232,7 @@ class EventManager:
         """
         event = self.get_event(name)
 
-        if not event:
+        if event is None:
             raise EventNotFound(name=name)
 
         self.remove_event(event)
@@ -263,7 +271,7 @@ class EventManager:
         """
         command = self.get_command(name)
 
-        if not command:
+        if command is None:
             raise CommandNotFound(name=name)
 
         self.remove_command(command)
@@ -283,7 +291,7 @@ class EventManager:
         """
         command = self.get_command(name, case_sensitive=_case_sensitive)
 
-        if not command:
+        if command is None:
             raise CommandNotFound(name)
 
         await command.raise_event(*args, **kwargs)
@@ -303,7 +311,7 @@ class EventManager:
         """
         event = self.get_event(name, case_sensitive=_case_sensitive)
 
-        if not event:
+        if event is None:
             raise EventNotFound(name)
 
         await event.raise_event(*args, **kwargs)
