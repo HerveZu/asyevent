@@ -138,23 +138,23 @@ class Callback:
     async def _invoke_once(
         self, *args, _event=None, _handler=None, **kwargs
     ) -> Optional[Exception]:
-        try:
-            parameters = self._parse_arguments(*args, **kwargs)
+        a, kwa = self._parse_arguments(*args, **kwargs)
 
-            if self.checker is None or self.checker(*parameters[0], **parameters[1]):
-                await self._coroutine(*parameters[0], **parameters[1])
+        if self.checker is None or self.checker(*a, **kwa):
+            try:
+                await self._coroutine(*a, **kwa)
 
-        except Exception as e:
-            if _handler is not None and not self.refuse_handling:
-                asyncio.create_task(
-                    _handler.raise_event(e, _event, self, *args, **kwargs)
-                )
+            except Exception as e:
+                if _handler is not None and not self.refuse_handling:
+                    asyncio.create_task(
+                        _handler.raise_event(e, _event, self, *args, **kwargs)
+                    )
 
-                if not self.continue_on_error:
-                    return e
+                    if not self.continue_on_error:
+                        return e
 
-            else:
-                raise e
+                else:
+                    raise e
 
         if self.loop > 1:
             await asyncio.sleep(self.loop_delay)
