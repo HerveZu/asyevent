@@ -93,7 +93,7 @@ class EventsWrapper(EventWrapper):
         await asyncio.sleep(1)
 
         # random choice between lose or not data
-        if len(data.value) + random.randint(0, 10) % 2 == 0:
+        if round(random.random()) == 0:
             # raises the data lost event if the data are lost
             await self.server.data_lost.raise_event()
 
