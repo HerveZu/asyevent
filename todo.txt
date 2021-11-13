@@ -4,7 +4,4 @@ kwargs for specification if automatic parameters are passed.
 use "is not None" instead of "not"
 personal error handler for every event and callback
 reformatting using Black
-yield from event
-pass AbstractLoopEvent to event manager
 import typing instead of ... from typing
-await for event to be triggerred (asyncio.Event.wait)
