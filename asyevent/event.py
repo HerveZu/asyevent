@@ -206,23 +206,31 @@ class Event:
             await self._before.raise_event(*args, **kwargs)
 
         self._internal_event.set()
+        tasks: typing.List[asyncio.Task] = []
         start_time = time.time()
 
         for callback in self.callbacks:
-            self._tasks.append(
-                self._loop.create_task(
-                    callback.invoke(
-                        *args,
-                        **kwargs,
-                        _event=self,
-                        _handler=self.event_manager.error_handler
-                        if self.handle_errors
-                        else None,
-                    )
+            task = self._loop.create_task(
+                callback.invoke(
+                    *args,
+                    **kwargs,
+                    _event=self,
+                    _handler=self.event_manager.error_handler
+                    if self.handle_errors
+                    else None,
                 )
             )
 
-        await asyncio.gather(*self._tasks)
+            # appends task to the global view
+            self._tasks.append(task)
+            # appends task to the local view
+            tasks.append(task)
+
+        # waits for local tasks to complete
+        await asyncio.gather(*tasks)
+
+        # clears local tasks
+        self._tasks = [t for t in self._tasks if t not in tasks]
 
         if self._after is not None and self._after.callbacks:
             # pass extra parameter only if specified
@@ -237,3 +245,4 @@ class Event:
         """
         for task in self._tasks:
             task.cancel()
+            self._tasks.remove(task)
