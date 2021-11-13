@@ -133,7 +133,11 @@ class Event:
         return decorator
 
     def create_callback(
-        self, callback: typing.Union[typing.Callable, Callback], *, priority: int = 1, **options
+        self,
+        callback: typing.Union[typing.Callable, Callback],
+        *,
+        priority: int = 1,
+        **options,
     ) -> Callback:
         """
         Creates a callback and add it to this event.
