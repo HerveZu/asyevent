@@ -170,7 +170,7 @@ class Callback:
                     f"\n * Missing to to call EventWrapper.init_callbacks()."
                     f"\n * Declaring callback as class callbacks."
                     f"\n * Overriding this callback method."
-                ) from None
+                )
 
             args = (self.wrapper,) + tuple(args)
 
