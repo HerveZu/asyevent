@@ -277,41 +277,41 @@ class EventManager:
         self.remove_command(command)
 
     async def invoke_command(
-        self, name: str, *args, _case_sensitive: bool = True, **kwargs
+        self, _name: str, *args, _case_sensitive: bool = True, **kwargs
     ):
         """
         Invokes a command by its name.
 
-        :param name: The command name.
+        :param _name: The command name.
         :param args: The command parameters.
         :param _case_sensitive: Is event research case sensitive.
         :param kwargs: The command keyword parameters.
 
         :raise CommandNotFound: If no command was found.:
         """
-        command = self.get_command(name, case_sensitive=_case_sensitive)
+        command = self.get_command(_name, case_sensitive=_case_sensitive)
 
         if command is None:
-            raise CommandNotFound(name)
+            raise CommandNotFound(_name)
 
         await command.raise_event(*args, **kwargs)
 
     async def raise_event(
-        self, name: str, *args, _case_sensitive: bool = True, **kwargs
+        self, _name: str, *args, _case_sensitive: bool = True, **kwargs
     ):
         """
         Raises an event by its name.
 
-        :param name: The event name.
+        :param _name: The event name.
         :param _case_sensitive: Is event research case sensitive.
         :param args: The event parameters.
         :param kwargs: The event keyword parameters.
 
         :raise EventNotFound: If no event was found.:
         """
-        event = self.get_event(name, case_sensitive=_case_sensitive)
+        event = self.get_event(_name, case_sensitive=_case_sensitive)
 
         if event is None:
-            raise EventNotFound(name)
+            raise EventNotFound(_name)
 
         await event.raise_event(*args, **kwargs)

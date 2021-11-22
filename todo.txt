@@ -5,3 +5,6 @@ use "is not None" instead of "not"
 personal error handler for every event and callback
 reformatting using Black
 import typing instead of ... from typing
+
+BadRequest __init__() handle param name
+parsing error raised even with handler
