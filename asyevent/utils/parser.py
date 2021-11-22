@@ -31,7 +31,9 @@ class _IParsable(typing.Protocol):
         pass
 
 
-def _parse_parameter(cls: type, value: typing.Any, *, param_name: str = None) -> typing.Any:
+def _parse_parameter(
+    cls: type, value: typing.Any, *, param_name: str = None
+) -> typing.Any:
     if typing.get_origin(cls) is typing.Union:
         cls = typing.get_args(cls)[0]
 
@@ -71,7 +73,9 @@ def parse_parameters(f: typing.Callable, *args, **kwargs) -> typing.Tuple[tuple,
     # merging signatures names and hint types
     hints: dict[str, typing.Any] = types | typing.get_type_hints(f)
 
-    kwargs = {k: _parse_parameter(hints.get(k), v, param_name=k) for k, v in kwargs.items()}
+    kwargs = {
+        k: _parse_parameter(hints.get(k), v, param_name=k) for k, v in kwargs.items()
+    }
 
     delta = max(0, len(args) - len(hints.values()))
     final_hints = list(hints.values()) + [typing.Any] * delta
