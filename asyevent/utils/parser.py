@@ -31,7 +31,7 @@ class _IParsable(typing.Protocol):
         pass
 
 
-def _parse_parameter(cls: type, value: typing.Any) -> typing.Any:
+def _parse_parameter(cls: type, value: typing.Any, *, param_name: str = None) -> typing.Any:
     if typing.get_origin(cls) is typing.Union:
         cls = typing.get_args(cls)[0]
 
@@ -43,18 +43,18 @@ def _parse_parameter(cls: type, value: typing.Any) -> typing.Any:
             return cls(value)
 
         except ValueError:
-            raise ParsingError(value=value, excepted_type=cls)
+            raise ParsingError(value, excepted_type=cls, param_name=param_name)
 
     elif issubclass(cls, _IParsable):
         params = [p.annotation for p in signature(cls.__parse__).parameters.values()]
 
         # checks if the values passed matches the parsing method
         if type(params[0]) is not type(value):
-            raise ParsingError(value=value, excepted_type=cls)
+            raise ParsingError(value, excepted_type=cls, param_name=param_name)
 
         return cls.__parse__(value)
 
-    raise ParsingNotImplemented(value=value, excepted_type=cls)
+    raise ParsingNotImplemented(value, excepted_type=cls, param_name=param_name)
 
 
 def parse_parameters(f: typing.Callable, *args, **kwargs) -> typing.Tuple[tuple, dict]:
@@ -71,7 +71,7 @@ def parse_parameters(f: typing.Callable, *args, **kwargs) -> typing.Tuple[tuple,
     # merging signatures names and hint types
     hints: dict[str, typing.Any] = types | typing.get_type_hints(f)
 
-    kwargs = {k: _parse_parameter(hints.get(k), v) for k, v in kwargs.items()}
+    kwargs = {k: _parse_parameter(hints.get(k), v, param_name=k) for k, v in kwargs.items()}
 
     delta = max(0, len(args) - len(hints.values()))
     final_hints = list(hints.values()) + [typing.Any] * delta

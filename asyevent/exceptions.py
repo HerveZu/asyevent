@@ -97,11 +97,13 @@ class ParsingError(AsyeventException):
     Raised on function parameters parsing failed.
     """
 
-    def __init__(self, value: Any, excepted_type: type):
+    def __init__(self, value: Any, *, excepted_type: type, param_name: str = None):
+        self.param_name = param_name
         self.value = value
         self.excepted_type = excepted_type
+
         super().__init__(
-            f"Parameter {value!r} of type {type(value)} cannot be parsed into {excepted_type}."
+            f"Parameter {(param_name or 'unknown name')!r} ({value=!r}) of type {type(value)} cannot be parsed into {excepted_type}."
         )
 
 
@@ -110,9 +112,12 @@ class ParsingNotImplemented(AsyeventException):
     Raised when trying to parse a parameter into a no `IParsable` class.
     """
 
-    def __init__(self, value: Any, excepted_type: type):
-        self.message = (
-            f"Parameter {value!r} is not of type {excepted_type}, but {excepted_type} is not parsable. "
+    def __init__(self, value: Any, *, excepted_type: type, param_name: str = None):
+        self.param_name = param_name
+        self.value = value
+        self.excepted_type = excepted_type
+
+        super().__init__(
+            f"Parameter {(param_name or 'unknown name')!r} ({value=!r}) is not of type {excepted_type}, but {excepted_type} is not parsable. "
             f"\nImplement `IParsable` to make a class parsable."
         )
-        super().__init__(self.message)
