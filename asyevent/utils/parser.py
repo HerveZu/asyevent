@@ -48,13 +48,13 @@ def _parse_parameter(
             raise ParsingError(value, excepted_type=cls, param_name=param_name)
 
     elif issubclass(cls, _IParsable):
-        params = [p.annotation for p in signature(cls.__parse__).parameters.values()]
+        try:
+            return cls.__parse__(value)
 
-        # checks if the values passed matches the parsing method
-        if type(params[0]) is not type(value):
-            raise ParsingError(value, excepted_type=cls, param_name=param_name)
+        except ParsingError as e:
+            e.param_name = param_name
 
-        return cls.__parse__(value)
+            raise e
 
     raise ParsingNotImplemented(value, excepted_type=cls, param_name=param_name)
 
